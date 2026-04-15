@@ -1,0 +1,19 @@
+meta {
+  name: GET InvoiceDetails
+  type: http
+  seq: 8
+}
+
+get {
+  url: https://{{domain}}/api/v1/InvoiceDetails/10?search=OrderNumber gt 0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: OrderNumber gt 0
+}
+
+settings {
+  encodeUrl: true
+}

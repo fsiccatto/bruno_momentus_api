@@ -1,0 +1,19 @@
+meta {
+  name: GET Departaments
+  type: http
+  seq: 12
+}
+
+get {
+  url: https://{{domain}}/api/v1/Departments/10?search=1 eq 1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: 1 eq 1
+}
+
+settings {
+  encodeUrl: true
+}

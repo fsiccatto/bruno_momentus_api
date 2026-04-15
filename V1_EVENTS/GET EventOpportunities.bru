@@ -1,0 +1,19 @@
+meta {
+  name: GET EventOpportunities
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://{{domain}}/api/v1/EventOpportunities/10?search=EnteredOn gt DateTime'2025-01-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredOn gt DateTime'2025-01-01'
+}
+
+settings {
+  encodeUrl: true
+}

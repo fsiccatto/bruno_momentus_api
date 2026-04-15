@@ -1,0 +1,19 @@
+meta {
+  name: GET InventoryItems
+  type: http
+  seq: 8
+}
+
+get {
+  url: https://{{domain}}/api/v1/PriceListItems/10?search=EnteredOn gt DateTime'2025-01-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredOn gt DateTime'2025-01-01'
+}
+
+settings {
+  encodeUrl: true
+}

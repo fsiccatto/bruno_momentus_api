@@ -1,0 +1,19 @@
+meta {
+  name: GET EventJobClasses
+  type: http
+  seq: 10
+}
+
+get {
+  url: https://{{domain}}/api/v1/EventJobClasses/10?search=1 eq 1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: 1 eq 1
+}
+
+settings {
+  encodeUrl: true
+}
