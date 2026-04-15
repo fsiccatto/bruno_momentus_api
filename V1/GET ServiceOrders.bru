@@ -1,0 +1,19 @@
+meta {
+  name: GET ServiceOrders
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://{{domain}}/api/v1/ServiceOrders/10?search=EnteredDateTime gt DateTime'2025-01-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredDateTime gt DateTime'2025-01-01'
+}
+
+settings {
+  encodeUrl: true
+}

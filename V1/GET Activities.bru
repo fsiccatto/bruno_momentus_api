@@ -1,0 +1,19 @@
+meta {
+  name: GET Activities
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://{{domain}}/api/v1/Activities/10?search=EnteredOn gt DateTime'2026-03-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredOn gt DateTime'2026-03-01'
+}
+
+settings {
+  encodeUrl: true
+}

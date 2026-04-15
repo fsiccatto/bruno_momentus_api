@@ -1,0 +1,25 @@
+meta {
+  name: GET Accounts
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://{{domain}}/api/v1/Accounts/10?search=EnteredOn gt DateTime'2026-03-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredOn gt DateTime'2026-03-01'
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  Parametros de busqueda:
+  
+  StartFragmentEnteredOn gt DateTime'2025-12-01' and Class eq 'P'$orderby=PostalCode desc, FirstName$page_size=100EndFragment
+}

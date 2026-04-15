@@ -1,0 +1,1595 @@
+meta {
+  name: Source PRIAVA
+  seq: 3
+}
+
+auth {
+  mode: inherit
+}
+
+docs {
+  ## Bronze
+  
+  ### **Bronze.priava_events**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - EventId: long
+      
+  - EventNumber: long
+      
+  - CreatedDate: timestamp
+      
+  - EventStartDate: timestamp
+      
+  - EventEndDate: timestamp
+      
+  - EventStartDay: int
+      
+  - EventEndDay: int
+      
+  - LastUpdatedDate: timestamp
+      
+  - EventSource: string
+      
+  - StatusChangedByWorkflow: string
+      
+  - EventCoordinator: string
+      
+  - EventStatus: string
+      
+  - EventType: string
+      
+  - StatusChangedDate: timestamp
+      
+  - VersionNumber: int
+      
+  - EventContact: string
+      
+  - UpdatedByWorkflow: string
+      
+  - SendToTevalis: string
+      
+  - VenueBookings: string
+      
+  - EventPax: long
+      
+  - EventName: string
+      
+  - TotalVenues: int
+      
+  - ExternalEventbriteID: string
+      
+  - SelectedVenueBookingIdEventbrite: int
+      
+  - EventbriteHash: string
+      
+  - SendToEventbrite: string
+      
+  - TevOrderRejectReason: string
+      
+  - TevOrderStatus: string
+      
+  - TevOrderStatusId: string
+      
+  - TevOrderId: string
+      
+  
+  ### **Bronze.priava_{endpoint}** _(beverage, charges, food, inventory)_
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - PackageBalancer: string
+      
+  - Tax: decimal(15,2)
+      
+  - TotalUnitCost: decimal(15,2)
+      
+  - NetTotalExTax: decimal(15,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - CatalogueCommentsPlainText: string
+      
+  - Formula: string
+      
+  - InvoicePrefix: string
+      
+  - Qty: long
+      
+  - Permission: string
+      
+  - IsUnitPriceLocked: string
+      
+  - ProfitAmount: decimal(15,2)
+      
+  - ProfitPercentage: decimal(15,2)
+      
+  - FinancialCommentsPlainText: string
+      
+  - IsFinancialCommentsModified: string
+      
+  - InvoiceNumber: string
+      
+  - CreditOrDebit: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Venue: string
+      
+  - NetTotalInclDiscount: decimal(15,2)
+      
+  - VenueBooking: string
+      
+  - DiscountAmount: decimal(15,2)
+      
+  - TaxType: string
+      
+  - TransactionStartDate: timestamp
+      
+  - IsUnitCostLocked: string
+      
+  - DiscountType: string
+      
+  - GrandTotal: decimal(15,2)
+      
+  - CreatedDate: timestamp
+      
+  - Id: long
+      
+  - DiscountValue: decimal(15,2)
+      
+  - FinancialName: string
+      
+  - RefPkgId: long
+      
+  - CatalogueHierarchy: string
+      
+  - FormulaToolTip: string
+      
+  - TotalAvailableQuantity: int
+      
+  - TrackQuantity: string
+      
+  - CurrentlyAvailableQuantity: string
+      
+  - PaymentType: string
+      
+  - InvoiceDate: string
+      
+  - OverBookable: string
+      
+  - CatalogueComments: string
+      
+  - TemplateId: long
+      
+  - IsLocked: string
+      
+  - EndDate: timestamp
+      
+  - Contact: string
+      
+  - UnitCost: decimal(15,2)
+      
+  - UnitPrice: decimal(15,2)
+      
+  - FinancialComments: string
+      
+  - Event: string
+      
+  - GrandTotalForCalc: decimal(15,2)
+      
+  
+  ### **Bronze.priava_contact**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - ContactId: long
+      
+  - Firstname: string
+      
+  - Lastname: string
+      
+  - UpdatedDate: timestamp
+      
+  - LastActivityDate: timestamp
+      
+  - OrganisationId: long
+      
+  - MarketingOptOut: string
+      
+  - Inactive: string
+      
+  - Deleted: string
+      
+  - GDPRProcessed: string
+      
+  - Anonymised: string
+      
+  - OverrideDiscountType: string
+      
+  - PersonalInformationConsent: string
+      
+  - Pseudonymised: string
+      
+  - JobTitle: string
+      
+  - Department: string
+      
+  - ExternalRefNo: string
+      
+  - Title: string
+      
+  - Address: string
+      
+  - Mobile: string
+      
+  - Email: string
+      
+  - Phone: string
+      
+  - PrimaryPhone: string
+      
+  - DebtorNo: string
+      
+  - Organisation: string
+      
+  - EmailOther: string
+      
+  
+  ### **Bronze.priava_organization**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - OrganisationId: long
+      
+  - Name: string
+      
+  - UpdatedDate: timestamp
+      
+  - Inactive: boolean
+      
+  - EmailOther: string
+      
+  - ExternalRefNo: string
+      
+  - DebtorNumber: string
+      
+  - TaxNo: string
+      
+  - CustomFields: string
+      
+  - Parent: string
+      
+  - BusinessPhone: string
+      
+  - Address: string
+      
+  - MarketSector: string
+      
+  - Fax: string
+      
+  - AssociatedContactsCount: int
+      
+  - Email: string
+      
+  - ParentId: long
+      
+  - PrimaryPhone: string
+      
+  - OtherPhone: string
+      
+  - OverrideDiscountType: string
+      
+  - Website: string
+      
+  - Type: string
+      
+  
+  ### **Bronze.priava_packages**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - Tax: decimal(15,2)
+      
+  - TotalUnitCost: decimal(15,2)
+      
+  - NetTotalExTax: decimal(15,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - CatalogueCommentsPlainText: string
+      
+  - UnitPriceTevalis: string
+      
+  - InvoicePrefix: string
+      
+  - Qty: long
+      
+  - Permission: string
+      
+  - IsUnitPriceLocked: string
+      
+  - ProfitAmount: decimal(15,2)
+      
+  - ProfitPercentage: decimal(15,2)
+      
+  - FinancialCommentsPlainText: string
+      
+  - IsFinancialCommentsModified: string
+      
+  - InvoiceNumber: string
+      
+  - CreditOrDebit: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Venue: string
+      
+  - Difference: decimal(15,2)
+      
+  - PackageTotal: decimal(15,2)
+      
+  - BreakDownPrice: decimal(15,2)
+      
+  - VenueBooking: string
+      
+  - DiscountAmount: decimal(15,2)
+      
+  - TevalisPluId: string
+      
+  - TransactionStartDate: timestamp
+      
+  - DiscountType: string
+      
+  - GrandTotal: decimal(15,2)
+      
+  - CreatedDate: timestamp
+      
+  - Id: long
+      
+  - DiscountValue: decimal(15,2)
+      
+  - FinancialName: string
+      
+  - BalancingOptions: string
+      
+  - CatalogueHierarchy: string
+      
+  - PackageBreakDown: string
+      
+  - PaymentType: string
+      
+  - InvoiceDate: string
+      
+  - TaxIncluded: string
+      
+  - CatalogueComments: string
+      
+  - TemplateId: long
+      
+  - IsLocked: string
+      
+  - EndDate: timestamp
+      
+  - Contact: string
+      
+  - UnitCost: decimal(15,2)
+      
+  - UnitPrice: decimal(15,2)
+      
+  - FinancialComments: string
+      
+  - Event: string
+      
+  - GrandTotalForCalc: decimal(15,2)
+      
+  
+  ### **Bronze.priava_events_details**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - EventId: long
+      
+  - EventNumber: long
+      
+  - EventName: string
+      
+  - CreatedDate: timestamp
+      
+  - EventStartDate: timestamp
+      
+  - EventEndDate: timestamp
+      
+  - UpdatedDate: timestamp
+      
+  - EventSource: string
+      
+  - EventComment: string
+      
+  - StatusChangedByWorkflow: string
+      
+  - EventStatus: string
+      
+  - EventType: string
+      
+  - StatusChangedDate: timestamp
+      
+  - VersionNumber: int
+      
+  - UpdatedByWorkflow: string
+      
+  - EventCoordinator: string
+      
+  - CancellationReason: string
+      
+  - PaymentAmount: decimal(15,2)
+      
+  - TotalRevenueExcTax: decimal(15,2)
+      
+  - TotalRevenue: decimal(15,2)
+      
+  - StatusChangedBy: string
+      
+  - UpdatedBy: string
+      
+  - EventPermissions: string
+      
+  - SendToTevalis: string
+      
+  - SelectedVenueBookingIdEventbrite: int
+      
+  - Ticketed: string
+      
+  - EventPax: long
+      
+  - SendToEventbrite: string
+      
+  - EventContact: string
+      
+  - CreatedBy: string
+      
+  - Venue: string
+      
+  - PermissionMessage: string
+      
+  - EventPaxBreakdown: string
+      
+  - CustomFields: string
+      
+  - PaxBreakdownToolTip: string
+      
+  - PurchaseOrder: string
+      
+  - ExtTevalisSiteDetailsSrlId: string
+      
+  - ExternalEventbriteID: string
+      
+  - TevOrderRejectReason: string
+      
+  - TevOrderStatus: string
+      
+  - TevOrderStatusId: string
+      
+  - TevOrderId: string
+      
+  
+  ### **Bronze.priava_venues**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Id: long
+      
+  - VenueId: long
+      
+  - VRType: string
+      
+  - BookingId: long
+      
+  - Name: string
+      
+  - AssociatedBookingId: string
+      
+  - CatalogueHierarchy: string
+      
+  - VRPermission: string
+      
+  - Event: string
+      
+  - CreatedDate: timestamp
+      
+  - EventStatus: string
+      
+  - IsSetDown: string
+      
+  - Contact: string
+      
+  - EventType: string
+      
+  - Permission: string
+      
+  - IsSetUp: string
+      
+  - HTMLComment: string
+      
+  - VenueName: string
+      
+  - BookingComment: string
+      
+  - StartDate: timestamp
+      
+  - EndDate: timestamp
+      
+  - LastUpdatedDate: timestamp
+      
+  - BookingStatus: string
+      
+  - EventNumber: long
+      
+  - EventName: string
+      
+  - ApplyPSRates: string
+      
+  - DefaultSetUpSetDown: string
+      
+  - BookingPax: string
+      
+  - Abbreviation: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Coordinator: string
+      
+  - Qty: long
+      
+  - EventPax: int
+      
+  - ExternalEventbriteId: string
+      
+  - SendToEventbrite: string
+      
+  - ExternalSalesforceID: string
+      
+  
+  ### **Bronze.priava_paymentreceived**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Id: long
+      
+  - TemplateId: long
+      
+  - Name: string
+      
+  - Tax: decimal(18,2)
+      
+  - GrandTotal: decimal(18,2)
+      
+  - UnitPrice: decimal(18,2)
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - TransactionStartDate: timestamp
+      
+  - StartDate: timestamp
+      
+  - LastUpdatedDate: timestamp
+      
+  - EndDate: timestamp
+      
+  - Qty: decimal(18,2)
+      
+  - PaymentType: string
+      
+  - CatalogueHierarchy: string
+      
+  - IsUnitPriceLocked: string
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - TaxType: string
+      
+  - Contact: string
+      
+  - Event: string
+      
+  - Venue: string
+      
+  - Permission: string
+      
+  - IsLocked: string
+      
+  - CatalogueComments: string
+      
+  - CreditOrDebit: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - FinancialName: string
+      
+  - InvoiceDate: timestamp
+      
+  - FinancialComments: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Abbreviation: string
+      
+  - InvoiceNumber: long
+      
+  - IsFinancialCommentsModified: string
+      
+  - CatalogueCommentsPlainText: string
+      
+  
+  ### **Bronze.priava_paymentrequest**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Id: long
+      
+  - TemplateId: long
+      
+  - Name: string
+      
+  - Tax: decimal(18,2)
+      
+  - GrandTotal: decimal(18,2)
+      
+  - UnitPrice: decimal(18,2)
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - TransactionStartDate: timestamp
+      
+  - StartDate: timestamp
+      
+  - LastUpdatedDate: timestamp
+      
+  - EndDate: timestamp
+      
+  - Qty: decimal(18,2)
+      
+  - PaymentType: string
+      
+  - CatalogueHierarchy: string
+      
+  - IsUnitPriceLocked: string
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - TaxType: string
+      
+  - Contact: string
+      
+  - Event: string
+      
+  - Venue: string
+      
+  - Permission: string
+      
+  - IsLocked: string
+      
+  - CatalogueComments: string
+      
+  - CreditOrDebit: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - FinancialName: string
+      
+  - InvoiceDate: timestamp
+      
+  - FinancialComments: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Abbreviation: string
+      
+  - InvoiceNumber: long
+      
+  - IsFinancialCommentsModified: string
+      
+  - CatalogueCommentsPlainText: string
+      
+  - FormulaToolTip: string
+      
+  
+  ### **Bronze.priava_bonds**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Id: long
+      
+  - TemplateId: long
+      
+  - Name: string
+      
+  - Tax: decimal(18,2)
+      
+  - GrandTotal: decimal(18,2)
+      
+  - UnitPrice: decimal(18,2)
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - TransactionStartDate: timestamp
+      
+  - StartDate: timestamp
+      
+  - LastUpdatedDate: timestamp
+      
+  - EndDate: timestamp
+      
+  - Qty: decimal(18,2)
+      
+  - PaymentType: string
+      
+  - CatalogueHierarchy: string
+      
+  - IsUnitPriceLocked: string
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - TaxType: string
+      
+  - Contact: string
+      
+  - Event: string
+      
+  - Venue: string
+      
+  - Permission: string
+      
+  - IsLocked: string
+      
+  - CatalogueComments: string
+      
+  - CreditOrDebit: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - FinancialName: string
+      
+  - InvoiceDate: timestamp
+      
+  - FinancialComments: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Abbreviation: string
+      
+  - InvoiceNumber: long
+      
+  - IsFinancialCommentsModified: string
+      
+  - CatalogueCommentsPlainText: string
+      
+  - FormulaToolTip: string
+      
+  
+  ### **Bronze.priava_venuerates**
+  
+  - __raw_data: string
+      
+  - __ingestion_timestamp: timestamp
+      
+  - Id: long
+      
+  - TemplateId: long
+      
+  - Name: string
+      
+  - Tax: decimal(18,2)
+      
+  - GrandTotal: decimal(18,2)
+      
+  - UnitPrice: decimal(18,2)
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - TransactionStartDate: timestamp
+      
+  - StartDate: timestamp
+      
+  - LastUpdatedDate: timestamp
+      
+  - EndDate: timestamp
+      
+  - Qty: decimal(18,2)
+      
+  - PaymentType: string
+      
+  - DiscountType: string
+      
+  - CatalogueHierarchy: string
+      
+  - IsUnitPriceLocked: string
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - TotalUnitCost: decimal(18,2)
+      
+  - TaxType: string
+      
+  - Event: string
+      
+  - DiscountValue: decimal(18,2)
+      
+  - Contact: string
+      
+  - RefPkgId: string
+      
+  - FormulaToolTip: string
+      
+  - UnitCost: decimal(18,2)
+      
+  - IsUnitCostLocked: string
+      
+  - ProfitPercentage: decimal(18,2)
+      
+  - NetTotalInclDiscount: decimal(18,2)
+      
+  - PackageBalancer: string
+      
+  - DiscountAmount: decimal(18,2)
+      
+  - ProfitAmount: decimal(18,2)
+      
+  - Venue: string
+      
+  - Permission: string
+      
+  - IsLocked: string
+      
+  - CatalogueComments: string
+      
+  - CreditOrDebit: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - FinancialName: string
+      
+  - InvoiceDate: timestamp
+      
+  - FinancialComments: string
+      
+  - IsCatalogueCommentsModified: string
+      
+  - Abbreviation: string
+      
+  - InvoiceNumber: long
+      
+  - IsFinancialCommentsModified: string
+      
+  - CatalogueCommentsPlainText: string
+      
+  
+  ## Gold
+  
+  ### **gold.dim_contact**
+  
+  - ContactId: long
+      
+  - DebtorNo: string
+      
+  - Email: string
+      
+  - UpdatedDate: timestamp
+      
+  - MarketingOptOut: string
+      
+  - JobTitle: string
+      
+  - Firstname: string
+      
+  - Lastname: string
+      
+  - Department: string
+      
+  - Inactive: string
+      
+  - Deleted: string
+      
+  - Organisation: string
+      
+  - OverrideDiscountType: string
+      
+  - OrganisationId: long
+      
+  - Title: string
+      
+  - ExternalRefNo: string
+      
+  - LastActivityDate: timestamp
+      
+  
+  ### **gold.dim_organization**
+  
+  - ParentId: long
+      
+  - TaxNo: string
+      
+  - OtherPhone: string
+      
+  - Email: string
+      
+  - Parent: string
+      
+  - PrimaryPhone: string
+      
+  - UpdatedDate: timestamp
+      
+  - OverrideDiscountType: string
+      
+  - OrganisationId: long
+      
+  - Website: string
+      
+  - MarketSector: string
+      
+  - Name: string
+      
+  - DebtorNumber: string
+      
+  - ExternalRefNo: string
+      
+  - Type: string
+      
+  - CIF: string
+      
+  - Empresa: string
+      
+  - Commissionable_Agreement: string
+      
+  - Contrato_Firmado: string
+      
+  - Comisionable: string
+      
+  - AssociatedContactsCount: int
+      
+  - Inactive: boolean
+      
+  - BusinessPhone: string
+      
+  - Fax: string
+      
+  - EmailOther: string
+      
+  
+  ### **gold.dim_venues**
+  
+  - EventNumber: long
+      
+  - LastUpdatedDate: timestamp
+      
+  - Abbreviation: string
+      
+  - CatalogueHierarchy: string
+      
+  - BookingPax: string
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - IsSetUp: string
+      
+  - IsSetDown: string
+      
+  - Qty: long
+      
+  - BookingId: long
+      
+  - EventPax: int
+      
+  - SendToEventbrite: string
+      
+  - VenueName: string
+      
+  - AssociatedBookingId: string
+      
+  - EventName: string
+      
+  - EndDate: timestamp
+      
+  - CreatedDate: timestamp
+      
+  - VRType: string
+      
+  - Id: long
+      
+  - VenueId: long
+      
+  - BookingComment: string
+      
+  
+  ### **gold.dim_event**
+  
+  - EventNumber: long
+      
+  - IdCancellationReason: string
+      
+  - NameCancellationReason: string
+      
+  - TotalRevenueExcTax: decimal(15,2)
+      
+  - StatusChangedBy: string
+      
+  - EventTypeId: string
+      
+  - EventTypeName: string
+      
+  - UpdatedDate: timestamp
+      
+  - EventStatusId: string
+      
+  - EventStatusName: string
+      
+  - PaymentAmount: decimal(15,2)
+      
+  - UpdatedByWorkflow: string
+      
+  - ExternalEventbriteID: string
+      
+  - UpdatedBy: string
+      
+  - EventStartDate: timestamp
+      
+  - EventEndDate: timestamp
+      
+  - EventId: long
+      
+  - SendToTevalis: string
+      
+  - SelectedVenueBookingIdEventbrite: int
+      
+  - Ticketed: string
+      
+  - EventPax: long
+      
+  - SendToEventbrite: string
+      
+  - CreatedBy: string
+      
+  - PermissionMessage: string
+      
+  - TevOrderStatusId: string
+      
+  - EventCoordinatorId: string
+      
+  - EventCoordinatorName: string
+      
+  - StatusChangedDate: timestamp
+      
+  - EventName: string
+      
+  - TevOrderId: string
+      
+  - VersionNumber: int
+      
+  - ExtTevalisSiteDetailsSrlId: string
+      
+  - TevOrderRejectReason: string
+      
+  - EventSourceId: string
+      
+  - EventSourceName: string
+      
+  - HorarioCONF: string
+      
+  - MaitreDeEvento: string
+      
+  - ContractSigned: string
+      
+  - Staff: string
+      
+  - TipoAsistencia: string
+      
+  - TipoMenu: string
+      
+  - Alergias: string
+      
+  - ChefDeEvento: string
+      
+  - SugerenciaChef: string
+      
+  - DossierVersion: string
+      
+  - ClientLanguage: string
+      
+  - BebidaSeleccionado: string
+      
+  - PruebaMenu: string
+      
+  - MenajeSeleccionado: string
+      
+  - ComercialEV: string
+      
+  - NacionalidadCliente: string
+      
+  - SeleccionDeCoctelsBarraLibre: string
+      
+  - JefeSectorCierreEvento: string
+      
+  - TipoDeEvento: string
+      
+  - SiteVisit: string
+      
+  - Layout: string
+      
+  - Compras: string
+      
+  - ServicioTarta: string
+      
+  - SelecionDeMenu: string
+      
+  - TotalRevenue: decimal(15,2)
+      
+  - TevOrderStatus: string
+      
+  - PaxBreakdownToolTip: string
+      
+  - CreatedDate: timestamp
+      
+  - PurchaseOrder: string
+      
+  - StatusChangedByWorkflow: string
+      
+  - EventDate: date
+      
+  
+  ### **gold.fact_bonds**
+  
+  - EventNumber: long
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - FinancialName: string
+      
+  - CatalogueHierarchy: string
+      
+  - Tax: decimal(18,2)
+      
+  - FormulaToolTip: string
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - CatalogueCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - Qty: decimal(18,2)
+      
+  - IsUnitPriceLocked: string
+      
+  - PaymentType: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - IsFinancialCommentsModified: string
+      
+  - InvoiceNumber: long
+      
+  - InvoiceDate: timestamp
+      
+  - CreditOrDebit: string
+      
+  - CatalogueComments: string
+      
+  - TemplateId: long
+      
+  - IsCatalogueCommentsModified: string
+      
+  - IsLocked: string
+      
+  - EndDate: timestamp
+      
+  - UnitPrice: decimal(18,2)
+      
+  - TransactionStartDate: timestamp
+      
+  - FinancialComments: string
+      
+  - GrandTotal: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - Id: long
+      
+  
+  ### **gold.fact_event_asistencia**
+  
+  - EventNumber: long
+      
+  - TipoAsistencia: string
+      
+  
+  ### **gold.fact_event_contact**
+  
+  - EventNumber: long
+      
+  - ContactTypeId: long
+      
+  - ContactTypeName: string
+      
+  - Email: string
+      
+  - Organisation: string
+      
+  - GivenName: string
+      
+  - ContactId: long
+      
+  - SurName: string
+      
+  - Phone: string
+      
+  - IsPrimary: string
+      
+  - Deleted: string
+      
+  - ContactName: string
+      
+  - EventContactId: long
+      
+  
+  ### **gold.fact_event_pax_breakdown**
+  
+  - EventNumber: long
+      
+  - TypeId: string
+      
+  - TypeName: string
+      
+  - Value: string
+      
+  - Id: string
+      
+  
+  ### **gold.fact_packages**
+  
+  - EventNumber: long
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - Tax: decimal(15,2)
+      
+  - Difference: decimal(15,2)
+      
+  - TotalUnitCost: decimal(15,2)
+      
+  - NetTotalExTax: decimal(15,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - Qty: long
+      
+  - ProfitAmount: decimal(15,2)
+      
+  - ProfitPercentage: decimal(15,2)
+      
+  - CreditOrDebit: string
+      
+  - DiscountAmount: decimal(15,2)
+      
+  - DiscountType: string
+      
+  - BreakDownPrice: decimal(15,2)
+      
+  - GrandTotal: decimal(15,2)
+      
+  - CreatedDate: timestamp
+      
+  - Id: long
+      
+  - DiscountValue: decimal(15,2)
+      
+  - FinancialName: string
+      
+  - TaxIncluded: string
+      
+  - CatalogueHierarchy: string
+      
+  - TemplateId: long
+      
+  - EndDate: timestamp
+      
+  - UnitCost: decimal(15,2)
+      
+  - UnitPrice: decimal(15,2)
+      
+  - PackageTotal: decimal(15,2)
+      
+  - GrandTotalForCalc: decimal(15,2)
+      
+  - BalancingOptions: string
+      
+  - CatalogueCommentsPlainText: string
+      
+  
+  ### **gold.fact_payment_received**
+  
+  - EventNumber: long
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - FinancialName: string
+      
+  - CatalogueHierarchy: string
+      
+  - Tax: decimal(18,2)
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - CatalogueCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - Qty: decimal(18,2)
+      
+  - IsUnitPriceLocked: string
+      
+  - PaymentType: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - InvoiceNumber: long
+      
+  - InvoiceDate: timestamp
+      
+  - CreditOrDebit: string
+      
+  - CatalogueComments: string
+      
+  - TemplateId: long
+      
+  - IsCatalogueCommentsModified: string
+      
+  - IsLocked: string
+      
+  - EndDate: timestamp
+      
+  - UnitPrice: decimal(18,2)
+      
+  - TransactionStartDate: timestamp
+      
+  - FinancialComments: string
+      
+  - GrandTotal: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - Id: long
+      
+  
+  ### **gold.fact_payment_request**
+  
+  - EventNumber: long
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - FinancialName: string
+      
+  - CatalogueHierarchy: string
+      
+  - Tax: decimal(18,2)
+      
+  - FormulaToolTip: string
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - CatalogueCommentsPlainText: string
+      
+  - InvoicePrefix: string
+      
+  - Qty: decimal(18,2)
+      
+  - IsUnitPriceLocked: string
+      
+  - PaymentType: string
+      
+  - FinancialCommentsPlainText: string
+      
+  - IsFinancialCommentsModified: string
+      
+  - InvoiceNumber: long
+      
+  - InvoiceDate: timestamp
+      
+  - CreditOrDebit: string
+      
+  - CatalogueComments: string
+      
+  - TemplateId: long
+      
+  - IsCatalogueCommentsModified: string
+      
+  - IsLocked: string
+      
+  - EndDate: timestamp
+      
+  - UnitPrice: decimal(18,2)
+      
+  - TransactionStartDate: timestamp
+      
+  - FinancialComments: string
+      
+  - GrandTotal: decimal(18,2)
+      
+  - CreatedDate: timestamp
+      
+  - GrandTotalForCalc: decimal(18,2)
+      
+  - Id: long
+      
+  
+  ### **gold.fact_venue_rates**
+  
+  - EventNumber: long
+      
+  - Abbreviation: string
+      
+  - LastUpdatedDate: timestamp
+      
+  - PackageBalancer: string
+      
+  - Tax: decimal(18,2)
+      
+  - TotalUnitCost: decimal(18,2)
+      
+  - NetTotalExTax: decimal(18,2)
+      
+  - Name: string
+      
+  - StartDate: timestamp
+      
+  - Qty: decimal(18,2)
+      
+  - ProfitAmount: decimal(18,2)
+      
+  - ProfitPercentage: decimal(18,2)
+      
+  - InvoiceNumber: long
+      
+  - CreditOrDebit: string
+      
+  - NetTotalInclDiscount: decimal(18,2)
+      
+  - DiscountAmount: decimal(18,2)
+      
+  - GrandTotal: decimal(18,2)
+      
+  - RefPkgId: string
+      
+  - CatalogueHierarchy: string
+      
+  - PaymentType: string
+      
+  - InvoiceDate: timestamp
+      
+  - IsLocked: string
+      
+  - UnitCost: decimal(18,2)
+      
+  - UnitPrice: decimal(18,2)
+      
+  
+  ### **gold.fact_items**
+  
+  - EventNumber: long
+      
+  - Abbreviation: string
+      
+  - PackageBalancer: string
+      
+  - Tax: decimal(15,2)
+      
+  - TotalUnitCost: decimal(15,2)
+      
+  - NetTotalExTax: decimal(15,2)
+      
+  - Name: string
+      
+  - Qty: long
+      
+  - CreditOrDebit: string
+      
+  - DiscountType: string
+      
+  - Id: long
+      
+  - DiscountValue: decimal(15,2)
+      
+  - RefPkgId: string
+      
+  - CatalogueHierarchy: string
+      
+  - TemplateId: long
+      
+  - Organisation: string
+      
+  - ContactId: string
+      
+  - UnitCost: decimal(15,2)
+      
+  - UnitPrice: decimal(15,2)
+      
+  - Tipo: string
+      
+  - TotalPrice: decimal(15,2)
+}

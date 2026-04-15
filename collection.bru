@@ -1,0 +1,4847 @@
+meta {
+  name: Momentus Enterprise API
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{ungerboeck_jwt}}
+}
+
+script:pre-request {
+  async function generateJWT() {
+      const apiUserId = bru.getEnvVar("ApiUserID");
+      const apiUserKey = bru.getEnvVar("ApiUserKey");
+      const apiUserSecret = bru.getEnvVar("ApiUserSecret");
+  
+      const header = { alg: "HS256", typ: "JWT" };
+      
+      const now = Math.floor(Date.now() / 1000);
+      const payload = {
+          iss: apiUserId,
+          key: apiUserKey,
+          exp: (now + 60).toString(),
+          iat: now.toString()
+      };
+  
+      const base64url = (str) => btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  
+      const encodedHeader = base64url(JSON.stringify(header));
+      const encodedPayload = base64url(JSON.stringify(payload));
+      const tokenData = `${encodedHeader}.${encodedPayload}`;
+  
+      // Usando el objeto global crypto (SubtleCrypto) para la firma
+      const encoder = new TextEncoder();
+      const keyData = encoder.encode(apiUserSecret);
+      const dataToSign = encoder.encode(tokenData);
+  
+      const cryptoKey = await crypto.subtle.importKey(
+          'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+      );
+  
+      const signature = await crypto.subtle.sign('HMAC', cryptoKey, dataToSign);
+      const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+          .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  
+      const jwt = `${tokenData}.${encodedSignature}`;
+      bru.setEnvVar("ungerboeck_jwt", jwt);
+  }
+  
+  // Ejecutar la función asíncrona
+  generateJWT().then(() => {
+      console.log("JWT Generado:", bru.getEnvVar("ungerboeck_jwt"));
+  });
+}
+
+docs {
+  # GET Endpoints
+  
+  Source: [https://foshcatering.ungerboeck.net/test/swagger/docs/V1](https://foshcatering.ungerboeck.net/test/swagger/docs/V1)
+  
+  ## ~~AccountAffiliations~~ (2)
+  
+  - GET /api/v1/AccountAffiliations/{OrgCode}
+      
+      - summary: Basic - Search for account affiliations using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountAffiliations/{OrgCode}/{AccountCode}/{AffiliationCode}
+      
+      - summary: Basic - Get a single affiliation on an account by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string, AffiliationCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AccountExternalIds~~ (2)
+  
+  - GET /api/v1/AccountExternalIds
+      
+      - summary: Standard - Search for Account External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountExternalIds/{ID}
+      
+      - summary: Standard - Get a single Account External Id by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AccountLeads~~ (2)
+  
+  - GET /api/v1/AccountLeads/{OrgCode}
+      
+      - summary: Standard - Search for Account lead using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountLeads/{OrgCode}/{LeadId}
+      
+      - summary: Standard - Get a single Account Lead entry by its parameters
+          
+      - requiredPath: OrgCode:string, LeadId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AccountMailingLists~~ (2)
+  
+  - GET /api/v1/AccountMailingLists/{OrgCode}
+      
+      - summary: Standard - Search for account mailing list using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountMailingLists/{OrgCode}/{ID}
+      
+      - summary: Standard - Get a single account mailing list entry by its parameters
+          
+      - requiredPath: OrgCode:string, ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## AccountProductsAndServices (2) -> vacio ❓
+  
+  - GET /api/v1/AccountProductsAndServices/{OrgCode}
+      
+      - summary: Basic - Search for account products and services using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountProductsAndServices/{OrgCode}/{AccountCode}/{ProductServiceCode}
+      
+      - summary: Basic - Get a single product/service on an account by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string, ProductServiceCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## Accounts (2) -> ✅
+  
+  - GET /api/v1/Accounts/{OrgCode}
+      
+      - summary: Basic - Search for accounts using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Accounts/{OrgCode}/{AccountCode}
+      
+      - summary: Basic - Get a single account by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AccountsReceivableVoucherAllocations~~ (2)
+  
+  - GET /api/v1/AccountsReceivableVoucherAllocations/{OrgCode}
+      
+      - summary: Standard - Search for AccountsReceivableVoucherAllocations using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountsReceivableVoucherAllocations/{OrgCode}/{VoucherSequence}/{VoucherDetailSequence}
+      
+      - summary: Standard - Retrieve a AccountsReceivableVoucherAllocations record
+          
+      - requiredPath: OrgCode:string, VoucherSequence:integer, VoucherDetailSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AccountsReceivableVouchers~~ (2)
+  
+  - GET /api/v1/AccountsReceivableVouchers/{OrgCode}
+      
+      - summary: Standard - Search for accounts receivable vouchers using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountsReceivableVouchers/{OrgCode}/{VoucherSequence}
+      
+      - summary: Standard - Get a single accounts receivable voucher by its parameters.
+          
+      - requiredPath: OrgCode:string, VoucherSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## AccountTypes (2) -> ✅
+  
+  - GET /api/v1/AccountTypes/{OrgCode}
+      
+      - summary: Basic - Search for account type using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AccountTypes/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single account type by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## Activities (2) -> Revisar 👀
+  
+  - GET /api/v1/Activities/{OrgCode}
+      
+      - summary: Basic - Search for activities using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Activities/{OrgCode}/{AccountCode}/{SequenceNumber}
+      
+      - summary: Basic - Get a single activity by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ActivityTypes (2) -> Revisar 👀
+  
+  - GET /api/v1/ActivityTypes/{OrgCode}
+      
+      - summary: Basic - Search for activity type using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ActivityTypes/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single activity type by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Affiliations~~ (2)
+  
+  - GET /api/v1/Affiliations/{OrgCode}
+      
+      - summary: Basic - Search for affiliations using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Affiliations/{OrgCode}/{AffiliationCode}
+      
+      - summary: Basic - Get a single affiliation by its parameters
+          
+      - requiredPath: OrgCode:string, AffiliationCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## Allergies (2) -> vacio ❓
+  
+  - GET /api/v1/Allergies
+      
+      - summary: Standard - Search for allergies using OData
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Allergies/{ID}
+      
+      - summary: Standard - Retrieve an Allergy record
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AlternateAddresses~~ (2)
+  
+  - GET /api/v1/AlternateAddresses/{OrgCode}
+      
+      - summary: Basic - Search for Alternate Addresses using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AlternateAddresses/{OrgCode}/{Account}/{SequenceNumber}
+      
+      - summary: Basic - Get a single Alternate Address by its parameters
+          
+      - requiredPath: OrgCode:string, Account:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~APDemographics~~ (2)
+  
+  - GET /api/v1/APDemographics/{OrgCode}
+      
+      - summary: Standard - Search for ap demographic using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/APDemographics/{OrgCode}/{Supplier}
+      
+      - summary: Standard - Get a single ap demographic by its parameters
+          
+      - requiredPath: OrgCode:string, Supplier:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~APPaymentTaxes~~ (2)
+  
+  - GET /api/v1/APPaymentTaxes/{OrgCode}
+      
+      - summary: Standard - Search for APPaymentTaxes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/APPaymentTaxes/{OrgCode}/{Sequence}/{Voucher}/{VoucherTaxSeq}
+      
+      - summary: Standard - Retrieve a APPaymentTaxes record
+          
+      - requiredPath: OrgCode:string, Sequence:integer, Voucher:integer, VoucherTaxSeq:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~APTaxes~~ (2)
+  
+  - GET /api/v1/APTaxes/{OrgCode}
+      
+      - summary: Standard - Search for ap taxes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/APTaxes/{OrgCode}/{SupplierAccountCode}/{SequenceNumber}
+      
+      - summary: Standard - Get an ap tax by its parameters
+          
+      - requiredPath: OrgCode:string, SupplierAccountCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~ARDemographics~~ (2)
+  
+  - GET /api/v1/ARDemographics/{OrgCode}
+      
+      - summary: Standard - Search for AR demographics using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ARDemographics/{OrgCode}/{Account}
+      
+      - summary: Standard - Get a single AR demographic entry by its parameters
+          
+      - requiredPath: OrgCode:string, Account:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AssetBookDefaults~~ (2)
+  
+  - GET /api/v1/AssetBookDefaults/{OrgCode}
+      
+      - summary: Standard - Search for Asset Book Defaults using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AssetBookDefaults/{OrgCode}/{SequenceNumber}
+      
+      - summary: Standard - Get an Asset Book Default by its parameters
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AssetsDepreciationDetails~~ (2)
+  
+  - GET /api/v1/AssetsDepreciationDetails/{OrgCode}
+      
+      - summary: Standard - Search for AssetsDepreciationDetails using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AssetsDepreciationDetails/{OrgCode}/{Sequence}/{Asset}/{Revision}/{Book}
+      
+      - summary: Standard - Retrieve a AssetsDepreciationDetail record
+          
+      - requiredPath: OrgCode:string, Sequence:integer, Asset:string, Revision:integer, Book:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AssetTransactions~~ (2)
+  
+  - GET /api/v1/AssetTransactions/{OrgCode}
+      
+      - summary: Standard - Search for asset transactions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AssetTransactions/{OrgCode}/{Asset}/{Book}/{Sequence}
+      
+      - summary: Standard - Get an asset transaction by its parameters
+          
+      - requiredPath: OrgCode:string, Asset:string, Book:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~AutomaticVouchers~~ (2)
+  
+  - GET /api/v1/AutomaticVouchers
+      
+      - summary: Standard - Search for an automatic voucher using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/AutomaticVouchers/{AutomaticVoucherId}
+      
+      - summary: Standard - Get a single automatic voucher by its parameters
+          
+      - requiredPath: AutomaticVoucherId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BankAccounts~~ (2)
+  
+  - GET /api/v1/BankAccounts/{OrgCode}
+      
+      - summary: Standard - Search for bank accounts using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BankAccounts/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single bank account by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BankReconciliations~~ (2)
+  
+  - GET /api/v1/BankReconciliations/{OrgCode}
+      
+      - summary: Standard - Search for Bank Reconciliations using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BankReconciliations/{OrgCode}/{SequenceNumber}
+      
+      - summary: Standard - Get Bank Reconciliation by its parameters
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Blocks~~ (2)
+  
+  - GET /api/v1/Blocks/{OrgCode}
+      
+      - summary: Basic - Search for blocks using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Blocks/{OrgCode}/{EventID}/{Code}
+      
+      - summary: Basic - Get a single block by its parameters
+          
+      - requiredPath: OrgCode:string, EventID:integer, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BookControlCodes~~ (2)
+  
+  - GET /api/v1/BookControlCodes/{OrgCode}
+      
+      - summary: Standard - Search for Book Control Codes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BookControlCodes/{OrgCode}/{Code}
+      
+      - summary: Standard - Get Book Control Code by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BookingRoleAccounts~~ (2) -> ❓
+  
+  - GET /api/v1/BookingRoleAccounts
+      
+      - summary: Standard - Search for a booking role account using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BookingRoleAccounts/{id}
+      
+      - summary: Standard - Get a single booking role account by its id.
+          
+      - requiredPath: id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BookingRoleContacts~~ (2)
+  
+  - GET /api/v1/BookingRoleContacts
+      
+      - summary: Standard - Search for a booking role contact using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BookingRoleContacts/{id}
+      
+      - summary: Standard - Get a single booking role contact by its id.
+          
+      - requiredPath: id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BookingRoleOsbConfigurations~~ (2)
+  
+  - GET /api/v1/BookingRoleOsbConfigurations
+      
+      - summary: Standard - Search for booking role Osb Configration using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BookingRoleOsbConfigurations/{ID}
+      
+      - summary: Standard - Get a single Booking Role Osb Configuration by its parameters.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BookingRoles~~ (2)
+  
+  - GET /api/v1/BookingRoles
+      
+      - summary: Standard - Search for BookingRole using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BookingRoles/{ID}
+      
+      - summary: Standard - Get a single BookingRole by its parameters.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BookingRoleTypes~~ (2)
+  
+  - GET /api/v1/BookingRoleTypes
+      
+      - summary: Standard - Search for booking role types using OData
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BookingRoleTypes/{ID}
+      
+      - summary: Standard - Retrieve a booking role type record
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Bookings (2) -> ✅
+  
+  - GET /api/v1/Bookings/{OrgCode}
+      
+      - summary: Basic - Search for bookings using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Bookings/{OrgCode}/{Event}/{SequenceNumber}
+      
+      - summary: Basic - Get a single booking by its parameters
+          
+      - requiredPath: OrgCode:string, Event:integer, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Booths~~ (2)
+  
+  - GET /api/v1/Booths/{OrgCode}
+      
+      - summary: Standard - Search for booth using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Booths/{OrgCode}/{SequenceNumber}
+      
+      - summary: Standard - Get a single booth by its parameters
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BudgetTransactions~~ (2)
+  
+  - GET /api/v1/BudgetTransactions/{OrgCode}
+      
+      - summary: Standard - Search for BudgetTransactions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BudgetTransactions/{OrgCode}/{Batch}/{TransactionNum}
+      
+      - summary: Standard - Retrieve a BudgetTransaction record
+          
+      - requiredPath: OrgCode:string, Batch:string, TransactionNum:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~BulletinApproval~~ (2)
+  
+  - GET /api/v1/BulletinApproval/{OrgCode}
+      
+      - summary: Standard - Search for bulletin approval using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/BulletinApproval/{OrgCode}/{MeetingSequenceNumber}/{BulletinSequenceNumber}/{SequenceNumber}/{BulletinFileID}
+      
+      - summary: Standard - Get a single bulletin approval by its parameters
+          
+      - requiredPath: OrgCode:string, MeetingSequenceNumber:integer, BulletinSequenceNumber:integer, SequenceNumber:integer, BulletinFileID:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Bulletins~~ (2)
+  
+  - GET /api/v1/Bulletins/{OrgCode}
+      
+      - summary: Standard - Search for bulletin using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Bulletins/{OrgCode}/{BulletinApplication}/{Meeting}/{Bulletin}
+      
+      - summary: Standard - Get a single bulletin by its parameters
+          
+      - requiredPath: OrgCode:string, BulletinApplication:string, Meeting:integer, Bulletin:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~CampaignDetails~~ (2)
+  
+  - GET /api/v1/CampaignDetails/{OrgCode}
+      
+      - summary: Standard - Search for campaign using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CampaignDetails/{OrgCode}/{CampaignDesignation}/{Campaign}/{SequenceNumber}
+      
+      - summary: Standard - Get a single campaign by its parameters
+          
+      - requiredPath: OrgCode:string, CampaignDesignation:string, Campaign:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Campaigns~~ (2)
+  
+  - GET /api/v1/Campaigns/{OrgCode}
+      
+      - summary: Standard - Search for campaign using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Campaigns/{OrgCode}/{ID}/{Designation}
+      
+      - summary: Standard - Get a single campaign by its parameters
+          
+      - requiredPath: OrgCode:string, ID:string, Designation:string
+          
+      - responseCodes: 200
+          
+  
+  ## CashBookTransactions (2) -> vacio ❓
+  
+  - GET /api/v1/CashBookTransactions/{OrgCode}
+      
+      - summary: Standard - Search for Cash Book Transactions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CashBookTransactions/{OrgCode}/{Sequence}
+      
+      - summary: Standard - Get an Cash Book Transaction by its parameters
+          
+      - requiredPath: OrgCode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Checklists (2) -> 👀
+  
+  - GET /api/v1/Checklists/{OrgCode}
+      
+      - summary: Standard - Search for Checklist using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Checklists/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single Checklist entry by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Communications~~ (2)
+  
+  - GET /api/v1/Communications/{OrgCode}
+      
+      - summary: Basic - Search for account communication entries using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Communications/{OrgCode}/{AccountCode}/{SequenceNumber}
+      
+      - summary: Basic - Get a single communication entry by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Concessions~~ (2)
+  
+  - GET /api/v1/Concessions/{OrgCode}
+      
+      - summary: Standard - Search for concession using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Concessions/{OrgCode}/{SequenceNumber}
+      
+      - summary: Standard - Get a single concession by its parameters
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~ContactExternalIds~~ (2)
+  
+  - GET /api/v1/ContactExternalIds
+      
+      - summary: Standard - Search for Contact External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ContactExternalIds/{ID}
+      
+      - summary: Standard - Get a single Contact External Id by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Contracts~~ (2)
+  
+  - GET /api/v1/Contracts/{OrgCode}
+      
+      - summary: Standard - Search for contract using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Contracts/{OrgCode}/{Sequence}
+      
+      - summary: Standard - Get a single contract by its parameters
+          
+      - requiredPath: OrgCode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~ConversationAccounts~~ (2)
+  
+  - GET /api/v1/ConversationAccounts
+      
+      - summary: Standard - Search for conversation accounts using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ConversationAccounts/{ConversationAccountID}
+      
+      - summary: Standard - Get a single conversation entry by its parameters
+          
+      - requiredPath: ConversationAccountID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~ConversationMessages~~ (2)
+  
+  - GET /api/v1/ConversationMessages
+      
+      - summary: Standard - Search for conversation messages using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ConversationMessages/{ConversationMessageID}
+      
+      - summary: Standard - Get a single conversation message by its parameters
+          
+      - requiredPath: ConversationMessageID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Conversations~~ (2)
+  
+  - GET /api/v1/Conversations
+      
+      - summary: Standard - Search for conversations using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Conversations/{ConversationID}
+      
+      - summary: Standard - Get a single conversation entry by its parameters
+          
+      - requiredPath: ConversationID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## CoreDimensions (2) -> 👀
+  
+  - GET /api/v1/CoreDimensions/{OrgCode}
+      
+      - summary: Standard - Search for core dimension using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CoreDimensions/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single core dimension by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Countries~~ (2)
+  
+  - GET /api/v1/Countries/{OrgCode}
+      
+      - summary: Basic - Search for countries using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Countries/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single country by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~CurrencyCodes~~ (2)
+  
+  - GET /api/v1/CurrencyCodes
+      
+      - summary: Basic - Search for Currency codes using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CurrencyCodes/{Code}
+      
+      - summary: Basic - Get a single Currency Code by its parameters
+          
+      - requiredPath: Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~CurrencyRates~~ (2)
+  
+  - GET /api/v1/CurrencyRates
+      
+      - summary: Basic - Search for Currency Rates using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CurrencyRates/{CurrencyCode}/{SequenceNumber}
+      
+      - summary: Basic - Get a single Currency Rate by its parameters
+          
+      - requiredPath: CurrencyCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~CustomerTerms~~ (2)
+  
+  - GET /api/v1/CustomerTerms/{OrgCode}
+      
+      - summary: Standard - Search for customer terms using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CustomerTerms/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single customer term by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~CustomFieldSets~~ (2)
+  
+  - GET /api/v1/CustomFieldSets/{OrgCode}
+      
+      - summary: Basic - Search for custom field set using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CustomFieldSets/{OrgCode}/{Class}/{Code}
+      
+      - summary: Basic - Get a single custom field set by its parameters
+          
+      - requiredPath: OrgCode:string, Class:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~CustomFieldValidationTables~~ (2)
+  
+  - GET /api/v1/CustomFieldValidationTables/{OrgCode}
+      
+      - summary: Basic - Search for custom field validation table using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/CustomFieldValidationTables/{OrgCode}/{ID}
+      
+      - summary: Basic - Get a single custom field validation table by its parameters
+          
+      - requiredPath: OrgCode:string, ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Cycles~~ (2)
+  
+  - GET /api/v1/Cycles/{OrgCode}
+      
+      - summary: Standard - Search for membership cycle using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Cycles/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single membership cycle by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~DailyRevenueAndCostAnalysis~~ (2)
+  
+  - GET /api/v1/DailyRevenueAndCostAnalysis/{OrgCode}
+      
+      - summary: Standard - Search for daily revenue and cost analysis using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/DailyRevenueAndCostAnalysis/{OrgCode}/{RevenueSequence}
+      
+      - summary: Standard - Get a daily revenue and cost analysis by its parameters
+          
+      - requiredPath: OrgCode:string, RevenueSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~DailyRevenueJobControls~~ (2)
+  
+  - GET /api/v1/DailyRevenueJobControls/{OrgCode}
+      
+      - summary: Standard - Search for daily revenue job controls using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/DailyRevenueJobControls/{Orgcode}/{Sequence}
+      
+      - summary: Standard - Get a daily revenue job control by its parameters
+          
+      - requiredPath: Orgcode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Departments (2) -> 👀
+  
+  - GET /api/v1/Departments/{OrgCode}
+      
+      - summary: Basic - Search for department using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Departments/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single department by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Distributions~~ (2)
+  
+  - GET /api/v1/Distributions/{OrgCode}
+      
+      - summary: Standard - Search for bulletin distribution using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Distributions/{OrgCode}/{BulletinApplication}/{Meeting}/{Bulletin}/{DistributionEntrySeqNbr}
+      
+      - summary: Standard - Get a single bulletin distribution by its parameters
+          
+      - requiredPath: OrgCode:string, BulletinApplication:string, Meeting:integer, Bulletin:integer, DistributionEntrySeqNbr:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~DocumentClasses~~ (2)
+  
+  - GET /api/v1/DocumentClasses/{OrgCode}
+      
+      - summary: Basic - Search for document class using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/DocumentClasses/{OrgCode}/{Class}
+      
+      - summary: Basic - Get a single document class by its parameters
+          
+      - requiredPath: OrgCode:string, Class:string
+          
+      - responseCodes: 200
+          
+  
+  ## Documents (3) -> ❓ No creo que usemos los documents
+  
+  - GET /api/v1/Documents/{OrgCode}
+      
+      - summary: Basic - Search for document entries using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Documents/{OrgCode}/{Type}/{SequenceNumber}
+      
+      - summary: Basic - Get a single Document entry by its parameters. To download a document file, use the /Download endpoint
+          
+      - requiredPath: OrgCode:string, Type:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Documents/{OrgCode}/{Type}/{SequenceNumber}/Download
+      
+      - summary: Basic - Get the bytes of a document. WARNING: The API help page does not react well to large (500+ characters) data strings. We suggest using a seperate app to test adding/editing/downloading document data.
+          
+      - requiredPath: OrgCode:string, Type:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventBlockExternalIds~~ (2)
+  
+  - GET /api/v1/EventBlockExternalIds
+      
+      - summary: Standard - Search for Event Block External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventBlockExternalIds/{ID}
+      
+      - summary: Standard - Get a single Event Block External Id by its parameters.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventCancelRequest (1) -> Esto nos sirve?? ❓
+  
+  - GET /api/v1/EventCancelRequest/{OrgCode}/{EventID}
+      
+      - summary: Basic - Get a single EventCancelRequest by its parameters.
+          
+          The purpose of this endpoint is to be able to _cancel_ an event when an Event Cancel Request has been submitted
+          
+          i.e. through the OSB My Events page
+          
+          ((If you wish to cancel an event, do it through a Edit (PUT) Event call using ReasonPhrase))
+          
+      - requiredPath: OrgCode:string, EventID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventExternalIds~~ (2)
+  
+  - GET /api/v1/EventExternalIds
+      
+      - summary: Standard - Search for Event External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventExternalIds/{ID}
+      
+      - summary: Standard - Get a single Event External Id by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventHousingBlocks~~ (2)
+  
+  - GET /api/v1/EventHousingBlocks/{orgCode}
+      
+      - summary: Standard - Search for an event housing block using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: orgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventHousingBlocks/{orgCode}/{transactionSeq}
+      
+      - summary: Standard - Get a single event housing block by its organization code and sequence.
+          
+      - requiredPath: orgCode:string, transactionSeq:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventJobCategories (2) -> ✅
+  
+  - GET /api/v1/EventJobCategories/{OrgCode}
+      
+      - summary: Basic - Search for event job categories using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventJobCategories/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single event category entry by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## EventJobClasses (2) -> ✅
+  
+  - GET /api/v1/EventJobClasses/{OrgCode}
+      
+      - summary: Basic - Search for event class using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventJobClasses/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single event class by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## EventJobTypes (2) -> ✅
+  
+  - GET /api/v1/EventJobTypes/{OrgCode}
+      
+      - summary: Basic - Search for event types using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventJobTypes/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single event type by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## EventOpportunities (2) -> ✅
+  
+  - GET /api/v1/EventOpportunities/{orgCode}
+      
+      - summary: Standard - Search for EventOpportunity using OData.
+          
+      - requiredPath: orgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunities/{orgCode}/{meetingSequence}
+      
+      - summary: Standard - Get a single EventOpportunity by its parameters
+          
+      - requiredPath: orgCode:string, meetingSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunityContacts~~ (2)
+  
+  - GET /api/v1/EventOpportunityContacts
+      
+      - summary: Standard - Search for Event Opportunity Contacts using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunityContacts/{ID}
+      
+      - summary: Standard - Get a single Event Opportunity Contact by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunityDates~~ (2)
+  
+  - GET /api/v1/EventOpportunityDates
+      
+      - summary: Standard - Search for Event Opportunity Dates using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunityDates/{ID}
+      
+      - summary: Standard - Get a single Event Opportunity Date by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunityExternalIds~~ (2)
+  
+  - GET /api/v1/EventOpportunityExternalIds
+      
+      - summary: Standard - Search for Event Opportunity External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunityExternalIds/{ID}
+      
+      - summary: Standard - Get a single Event Opportunity External Id by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunityFlowPattern~~ (2)
+  
+  - GET /api/v1/EventOpportunityFlowPattern/{OrgCode}
+      
+      - summary: Standard - Search for event opportunity flow pattern using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunityFlowPattern/{OrgCode}/{MeetingTourSequenceNbr}/{FlowSequenceNumber}
+      
+      - summary: Standard - Get a single event opportunity flow pattern by its parameters
+          
+      - requiredPath: OrgCode:string, MeetingTourSequenceNbr:integer, FlowSequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunityGuestRoomFlow~~ (2)
+  
+  - GET /api/v1/EventOpportunityGuestRoomFlow
+      
+      - summary: Standard - Search for Guest Room Flow using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunityGuestRoomFlow/{Id}
+      
+      - summary: Standard - Get the Guest Room Flow for a specified Event Opportunity
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunityRevenue~~ (2)
+  
+  - GET /api/v1/EventOpportunityRevenue
+      
+      - summary: Standard - Search for Event Opportunity Revenue using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunityRevenue/{Id}
+      
+      - summary: Standard - Get a single Event Opportunity Revenue by its parameters
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunitySpaceRequirements~~ (2)
+  
+  - GET /api/v1/EventOpportunitySpaceRequirements
+      
+      - summary: Standard - Search for Event Opportunity Space Requirement using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunitySpaceRequirements/{Id}
+      
+      - summary: Standard - Get a single Event Opportunity Space Requirement by its parameters
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventOpportunitySpaceRequirementsProposedSpaces~~ (2)
+  
+  - GET /api/v1/EventOpportunitySpaceRequirementsProposedSpaces
+      
+      - summary: Standard - Search for Proposed Spaces on Event Opportunity Space Requirements using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventOpportunitySpaceRequirementsProposedSpaces/{Id}
+      
+      - summary: Standard - Get a single Proposed Space for an Event Opportunity Space Requirement by its parameters
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventPerformingArts~~ (2)
+  
+  - GET /api/v1/EventPerformingArts
+      
+      - summary: Standard - Search for Event Performing Arts using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventPerformingArts/{PerformingArtID}
+      
+      - summary: Standard - Get a single EventPerformingArts by its parameters.
+          
+      - requiredPath: PerformingArtID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventPortalMessages~~ (2)
+  
+  - GET /api/v1/EventPortalMessages
+      
+      - summary: Standard - Search for Event Portal Message using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventPortalMessages/{EventPortalMessageID}
+      
+      - summary: Standard - Get a single Event Portal message by its parameters
+          
+      - requiredPath: EventPortalMessageID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventProductsAndServices (2) -> vacio ❓
+  
+  - GET /api/v1/EventProductsAndServices/{OrgCode}
+      
+      - summary: Basic - Search for event products and services using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventProductsAndServices/{OrgCode}/{SequenceNumber}
+      
+      - summary: Basic - Get a single event product and service by its parameters
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventProfiles (2) -> Templates ??? 👀
+  
+  - GET /api/v1/EventProfiles/{OrgCode}
+      
+      - summary: Basic - Search for event profiles using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventProfiles/{OrgCode}/{EventID}
+      
+      - summary: Basic - Get a single event profile by its parameters
+          
+      - requiredPath: OrgCode:string, EventID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventRoomTypeExternalIds~~ (2)
+  
+  - GET /api/v1/EventRoomTypeExternalIds
+      
+      - summary: Standard - Search for Event Room Type External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventRoomTypeExternalIds/{ID}
+      
+      - summary: Standard - Get an Event Room Type External Id by the primary key.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~EventRoundSessionProposals~~ (2)
+  
+  - GET /api/v1/EventRoundSessionProposals
+      
+      - summary: Standard - Search for session proposal rounds using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventRoundSessionProposals/{Id}
+      
+      - summary: Standard - Get a single session proposal rounds by its parameters
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Events (3) -> ✅
+  
+  - GET /api/v1/Events/{OrgCode}
+      
+      - summary: Basic - Search for Events using OData. This will also retrieve user fields matching the default user field class, configured in Event Management Configuration.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Events/{OrgCode}/{EventID}
+      
+      - summary: Basic - Get a single event by its parameters
+          
+      - requiredPath: OrgCode:string, EventID:integer
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Events/GetLogo/{OrgCode}/{EventID}
+      
+      - summary: Basic - Get the event logo. WARNING: The API help page does not react well to large (500+ characters) data strings. We suggest using a seperate app to test downloading event logo data.
+          
+      - requiredPath: OrgCode:string, EventID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventServices (2) -> vacio ❓
+  
+  - GET /api/v1/EventServices/{OrgCode}
+      
+      - summary: Basic - Search for Event Services using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventServices/{OrgCode}/{EventID}/{SequenceNumber}
+      
+      - summary: Basic - Get an Event Service by its parameters
+          
+      - requiredPath: OrgCode:string, EventID:integer, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventsPriceList (2) -> vacio ❓
+  
+  - GET /api/v1/EventsPriceList/{OrgCode}
+      
+      - summary: Basic - Search for event price list using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventsPriceList/{OrgCode}/{Code}/{EventID}
+      
+      - summary: Basic - Get a single event price list by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string, EventID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventStatuses (2) -> ✅
+  
+  - GET /api/v1/EventStatuses/{OrgCode}
+      
+      - summary: Basic - Search for event status entries using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventStatuses/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single event status entry by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## EventTaskDetails (2)
+  
+  - GET /api/v1/EventTaskDetails
+      
+      - summary: Standard - Search for Event Task Details using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventTaskDetails/{EventTaskConfigurationID}
+      
+      - summary: Standard - Get a single EventTaskDetail by its parameters.
+          
+      - requiredPath: EventTaskConfigurationID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## EventTaskUsers (2)
+  
+  - GET /api/v1/EventTaskUsers
+      
+      - summary: Standard - Search for Event Task Users using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/EventTaskUsers/{EventTaskUserID}
+      
+      - summary: Standard - Get a single EventTaskUser by its parameters.
+          
+      - requiredPath: EventTaskUserID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExhibitorInBoothEvents (2)
+  
+  - GET /api/v1/ExhibitorInBoothEvents
+      
+      - summary: Standard - Search for Exhibitor In Booth Events using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExhibitorInBoothEvents/{ID}
+      
+      - summary: Standard - Get a single Exhibitor In Booth Event by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExhibitorProductVideos (2)
+  
+  - GET /api/v1/ExhibitorProductVideos
+      
+      - summary: Standard - Search for Exhibitor Product Videos using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExhibitorProductVideos/{ID}
+      
+      - summary: Standard - Get a single Exhibitor Product Video by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Exhibitors (2)
+  
+  - GET /api/v1/Exhibitors/{OrgCode}
+      
+      - summary: Standard - Search for Exhibitors using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Exhibitors/{OrgCode}/{ExhibitorID}
+      
+      - summary: Standard - Get a single Exhibitor by its parameters
+          
+      - requiredPath: OrgCode:string, ExhibitorID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExhibitorSocialMedia (2)
+  
+  - GET /api/v1/ExhibitorSocialMedia
+      
+      - summary: Standard - Search for Exhibitor Social Media Platforms using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExhibitorSocialMedia/{ID}
+      
+      - summary: Standard - Get a single Exhibitor Social Media Platform by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExpenseReportApprovals (2)
+  
+  - GET /api/v1/ExpenseReportApprovals
+      
+      - summary: Standard - Search for Expense Report Approvals using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExpenseReportApprovals/{LogSequence}
+      
+      - summary: Standard - Get an Expense Report Approval by its parameters
+          
+      - requiredPath: LogSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExpenseReportCreditCardDetails (2)
+  
+  - GET /api/v1/ExpenseReportCreditCardDetails
+      
+      - summary: Standard - Search for Expense Report Credit Card Details using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExpenseReportCreditCardDetails/{CardTransactionDetailID}
+      
+      - summary: Standard - Get a single Card Transaction Detail by its parameters
+          
+      - requiredPath: CardTransactionDetailID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExpenseReportDetails (2)
+  
+  - GET /api/v1/ExpenseReportDetails
+      
+      - summary: Standard - Search for expense report details using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExpenseReportDetails/{Sequence}
+      
+      - summary: Standard - Get an expense report detail by its parameters
+          
+      - requiredPath: Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExpenseReportHeaders (2)
+  
+  - GET /api/v1/ExpenseReportHeaders
+      
+      - summary: Standard - Search for expense report headers using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExpenseReportHeaders/{ID}
+      
+      - summary: Standard - Get an expense report header by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExternalInvoiceDetails (2)
+  
+  - GET /api/v1/ExternalInvoiceDetails
+      
+      - summary: Standard - Search for GetExternalInvoiceDetails using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExternalInvoiceDetails/{DetailIDExt}
+      
+      - summary: Standard - Retrieve an ExternalInvoiceDetail record
+          
+      - requiredPath: DetailIDExt:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExternalInvoices (2)
+  
+  - GET /api/v1/ExternalInvoices
+      
+      - summary: Standard - Search for GetExternalInvoices using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExternalInvoices/{HeaderIDExt}
+      
+      - summary: Standard - Retrieve an ExternalInvoice record
+          
+      - requiredPath: HeaderIDExt:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExternalInvoiceSummaries (2)
+  
+  - GET /api/v1/ExternalInvoiceSummaries
+      
+      - summary: Standard - Search for GetExternalInvoiceSummaries using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExternalInvoiceSummaries/{SummaryID}
+      
+      - summary: Standard - Retrieve a ExternalInvoiceSummary record
+          
+      - requiredPath: SummaryID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExternalSystems (2)
+  
+  - GET /api/v1/ExternalSystems
+      
+      - summary: Standard - Search for External Systems using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExternalSystems/{ID}
+      
+      - summary: Standard - Get a single External System by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ExternalSystemSubjects (2)
+  
+  - GET /api/v1/ExternalSystemSubjects
+      
+      - summary: Standard - Search for External System Subjects using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ExternalSystemSubjects/{ID}
+      
+      - summary: Standard - Get a single External System Subject by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FiscalPeriods (2)
+  
+  - GET /api/v1/FiscalPeriods/{OrgCode}
+      
+      - summary: Standard - Search for fiscal periods using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FiscalPeriods/{OrgCode}/{Module}/{Year}/{Period}
+      
+      - summary: Standard - Get a fiscal period by its parameters
+          
+      - requiredPath: OrgCode:string, Module:string, Year:integer, Period:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FiscalYears (2)
+  
+  - GET /api/v1/FiscalYears/{OrgCode}
+      
+      - summary: Standard - Search for fiscal years using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FiscalYears/{OrgCode}/{Year}
+      
+      - summary: Standard - Get a fiscal year by its parameters
+          
+      - requiredPath: OrgCode:string, Year:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FixedAssetBookDetails (2)
+  
+  - GET /api/v1/FixedAssetBookDetails/{OrgCode}
+      
+      - summary: Standard - Search for GetFixedAssetBookDetails using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FixedAssetBookDetails/{OrgCode}/{Asset}/{Book}
+      
+      - summary: Standard - Retrieve a FixedAssetBookDetail record
+          
+      - requiredPath: OrgCode:string, Asset:string, Book:string
+          
+      - responseCodes: 200
+          
+  
+  ## FixedAssetsRegisters (2)
+  
+  - GET /api/v1/FixedAssetsRegisters/{OrgCode}
+      
+      - summary: Standard - Search for FixedAssetsRegisters using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FixedAssetsRegisters/{OrgCode}/{Code}
+      
+      - summary: Standard - Retrieve a FixedAssetsRegister record
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## FulfillmentOrderItems (2)
+  
+  - GET /api/v1/FulfillmentOrderItems/{OrgCode}
+      
+      - summary: Standard - Search for Fulfillment order items using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FulfillmentOrderItems/{OrgCode}/{OrderNumber}/{OrderLineNumber}
+      
+      - summary: Standard - Get a single Fulfillment order item by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer, OrderLineNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FulfillmentOrders (2)
+  
+  - GET /api/v1/FulfillmentOrders/{OrgCode}
+      
+      - summary: Standard - Search for Fulfillment orders using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FulfillmentOrders/{OrgCode}/{OrderNumber}
+      
+      - summary: Standard - Get a single Fulfillment order by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FunctionCheckIns (2)
+  
+  - GET /api/v1/FunctionCheckIns
+      
+      - summary: Standard - Search for function check-in record OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FunctionCheckIns/{Sequence}
+      
+      - summary: Standard - Get a single function check-in entry by its parameters
+          
+      - requiredPath: Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FunctionPerformingArts (2)
+  
+  - GET /api/v1/FunctionPerformingArts
+      
+      - summary: Standard - Search for Function Performing Arts using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FunctionPerformingArts/{ID}
+      
+      - summary: Standard - Get a single FunctionPerformingArts by its parameters.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Functions (2)
+  
+  - GET /api/v1/Functions/{OrgCode}
+      
+      - summary: Basic - Search for Functions using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Functions/{OrgCode}/{EventID}/{FunctionID}
+      
+      - summary: Basic - Get a single function by its parameters
+          
+      - requiredPath: OrgCode:string, EventID:integer, FunctionID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## FunctionSeatingCharts (2)
+  
+  - GET /api/v1/FunctionSeatingCharts/{OrgCode}
+      
+      - summary: Basic - Get a list of Function seating charts by specified search data
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/FunctionSeatingCharts/{OrgCode}/{SequenceNumber}
+      
+      - summary: Basic - Get a single Function seating chart by sequence number
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## GLAccountAnalysisCodes (2)
+  
+  - GET /api/v1/GLAccountAnalysisCodes/{OrgCode}
+      
+      - summary: Standard - Search for GL account analysis code using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLAccountAnalysisCodes/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single gl account analysis code by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## GLAccounts (2)
+  
+  - GET /api/v1/GLAccounts/{OrgCode}
+      
+      - summary: Standard - Search for GL accounts using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLAccounts/{OrgCode}/{GLAccount}/{SubAccount}
+      
+      - summary: Standard - Get a GL account by its parameters
+          
+      - requiredPath: OrgCode:string, GLAccount:string, SubAccount:string
+          
+      - responseCodes: 200
+          
+  
+  ## GLDeferralRevenueDetails (2)
+  
+  - GET /api/v1/GLDeferralRevenueDetails
+      
+      - summary: Standard - Search for GlDeferral Revenue Details using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLDeferralRevenueDetails/{HdrSequence}/{Sequence}
+      
+      - summary: Standard - Get an GlDeferral Revenue Detail by its parameters
+          
+      - requiredPath: HdrSequence:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## GLDeferralRevenueHeaders (2)
+  
+  - GET /api/v1/GLDeferralRevenueHeaders
+      
+      - summary: Standard - Search for GlDeferral Revenue Header using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLDeferralRevenueHeaders/{Sequence}
+      
+      - summary: Standard - Get an GlDeferral Revenue Header by its parameters
+          
+      - requiredPath: Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## GLDistributions (2)
+  
+  - GET /api/v1/GLDistributions/{OrgCode}
+      
+      - summary: Standard - Search for GLDistributions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLDistributions/{OrgCode}/{RecordType}/{SequenceNumber}
+      
+      - summary: Standard - Get GLDistribution by its parameters
+          
+      - requiredPath: OrgCode:string, RecordType:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## GLMainAccounts (2)
+  
+  - GET /api/v1/GLMainAccounts/{OrgCode}
+      
+      - summary: Standard - Search for GLMainAccounts using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLMainAccounts/{OrgCode}/{GLMainAccount}
+      
+      - summary: Standard - Retrieve a GLMainAccount record
+          
+      - requiredPath: OrgCode:string, GLMainAccount:string
+          
+      - responseCodes: 200
+          
+  
+  ## GLSources (2)
+  
+  - GET /api/v1/GlSources/{OrgCode}
+      
+      - summary: Standard - Search for GLSources using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GlSources/{OrgCode}/{Source}
+      
+      - summary: Standard - Get a single GLSources by its parameters
+          
+      - requiredPath: OrgCode:string, Source:string
+          
+      - responseCodes: 200
+          
+  
+  ## GLSpaceMajor (2)
+  
+  - GET /api/v1/GLSpaceMajor/{OrgCode}
+      
+      - summary: Standard - Search for GL Space Major using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLSpaceMajor/{OrgCode}/{Code}
+      
+      - summary: Standard - Get GL Space Major by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## GLSpaceMinor (2)
+  
+  - GET /api/v1/GLSpaceMinor/{OrgCode}
+      
+      - summary: Standard - Search for GL Space Minor using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GLSpaceMinor/{OrgCode}/{Code}
+      
+      - summary: Standard - Get GL Space Minor by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## GroupProfiles (2)
+  
+  - GET /api/v1/GroupProfiles/{OrgCode}
+      
+      - summary: Standard - Search for Group Profile using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GroupProfiles/{OrgCode}/{ID}
+      
+      - summary: Standard - Get a single Group Profile by its parameters
+          
+      - requiredPath: OrgCode:string, ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## GroupPropertyConfigurations (2)
+  
+  - GET /api/v1/GroupPropertyConfigurations/{OrgCode}
+      
+      - summary: Standard - Search for Group Property Configurations using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/GroupPropertyConfigurations/{OrgCode}/{SequenceNumber}/{AccountCode}
+      
+      - summary: Standard - Get a single GroupPropertyConfiguration by its parameters
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer, AccountCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## HtmlTemplates (1)
+  
+  - GET /api/v1/HtmlTemplates/{OrgCode}/{TemplateSequence}/GetParameters
+      
+      - summary: Standard - This returns a paramaters model with parameters needed to resolve the template
+          
+      - requiredPath: OrgCode:string, TemplateSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## InventoryBalances (2)
+  
+  - GET /api/v1/InventoryBalances/{OrgCode}
+      
+      - summary: Standard - Search for records.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InventoryBalances/{OrgCode}/{Item}/{LotSerialNumber}/{Location}/{FiscalYear}/{FiscalPeriod}
+      
+      - summary: Standard - Retrieve a InventoryBalance record
+          
+      - requiredPath: OrgCode:string, Item:string, LotSerialNumber:string, Location:string, FiscalYear:integer, FiscalPeriod:integer
+          
+      - responseCodes: 200
+          
+  
+  ## InventoryBatchDetails (2)
+  
+  - GET /api/v1/InventoryBatchDetails/{OrgCode}
+      
+      - summary: Standard - Search for inventory batch details using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InventoryBatchDetails/{OrgCode}/{Batch}/{Sequence}
+      
+      - summary: Standard - Get an inventory batch detail by its parameters
+          
+      - requiredPath: OrgCode:string, Batch:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## InventoryItems (2)
+  
+  - GET /api/v1/InventoryItems/{OrgCode}
+      
+      - summary: Basic - Search for Inventory Stats List using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InventoryItems/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single Inventory Item by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## InventoryStats (2)
+  
+  - GET /api/v1/InventoryStats/{OrgCode}
+      
+      - summary: Basic - Search for Inventory Stats List using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InventoryStats/{OrgCode}/{Item}/{Space}/{LotSerialNumber}
+      
+      - summary: Basic - Get a single Inventory Stat entry by its parameters
+          
+      - requiredPath: OrgCode:string, Item:string, Space:string, LotSerialNumber:string
+          
+      - responseCodes: 200
+          
+  
+  ## InventorySuppliers (2)
+  
+  - GET /api/v1/InventorySuppliers/{OrgCode}
+      
+      - summary: Basic - Search for Inventory Suppliers List using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InventorySuppliers/{OrgCode}/{InventoryItem}/{Supplier}
+      
+      - summary: Basic - Get a single Inventory Supplier entry by its parameters
+          
+      - requiredPath: OrgCode:string, InventoryItem:string, Supplier:string
+          
+      - responseCodes: 200
+          
+  
+  ## InventoryTransactions (2)
+  
+  - GET /api/v1/InventoryTransactions
+      
+      - summary: Standard - Search for InventoryTransactions using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InventoryTransactions/{UniqueId}
+      
+      - summary: Standard - Get a single Inventory transaction record
+          
+      - requiredPath: UniqueId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## InvoiceDetails (2)
+  
+  - GET /api/v1/InvoiceDetails/{OrgCode}
+      
+      - summary: Standard - Search for invoice details using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InvoiceDetails/{OrgCode}/{InvoiceNumber}/{OrderNumber}/{OrderLine}
+      
+      - summary: Standard - Get an invoice detail by its parameters
+          
+      - requiredPath: OrgCode:string, InvoiceNumber:integer, OrderNumber:integer, OrderLine:integer
+          
+      - responseCodes: 200
+          
+  
+  ## InvoiceDetailTaxes (2)
+  
+  - GET /api/v1/InvoiceDetailTaxes/{OrgCode}
+      
+      - summary: Standard - Search for invoice detail taxes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/InvoiceDetailTaxes/{OrgCode}/{InvoiceNumber}/{OrderNumber}/{OrderLineNumber}/{SequenceNumber}
+      
+      - summary: Standard - Get an invoice detail tax by its parameters
+          
+      - requiredPath: OrgCode:string, InvoiceNumber:integer, OrderNumber:integer, OrderLineNumber:integer, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Invoices (2) -> vacio ❓
+  
+  - GET /api/v1/Invoices/{OrgCode}
+      
+      - summary: Standard - Search for invoices using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Invoices/{OrgCode}/{InvoiceNumber}/{Source}
+      
+      - summary: Standard - Get a single invoice by its parameters
+          
+      - requiredPath: OrgCode:string, Source:string, InvoiceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Jobs (2)
+  
+  - GET /api/v1/Jobs/{OrgCode}
+      
+      - summary: Standard - Search for Jobs using OData. This will also retrieve user fields matching the default user field class, configured in Job Management Configuration.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Jobs/{OrgCode}/{JobID}
+      
+      - summary: Standard - Get a single job by its parameters
+          
+      - requiredPath: OrgCode:string, JobID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## JournalEntries (2)
+  
+  - GET /api/v1/JournalEntries/{OrgCode}
+      
+      - summary: Standard - Search for journal entry using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/JournalEntries/{OrgCode}/{Year}/{Period}/{Source}/{EntryNumber}
+      
+      - summary: Standard - Get a single journal entry by its parameters
+          
+      - requiredPath: OrgCode:string, Year:integer, Period:integer, Source:string, EntryNumber:string
+          
+      - responseCodes: 200
+          
+  
+  ## JournalEntryDetails (2)
+  
+  - GET /api/v1/JournalEntryDetails/{OrgCode}
+      
+      - summary: Standard - Search for journal entry detail using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/JournalEntryDetails/{OrgCode}/{Year}/{Period}/{Source}/{EntryNumber}/{Line}
+      
+      - summary: Standard - Get a single journal entry detail by its parameters
+          
+      - requiredPath: OrgCode:string, Year:integer, Period:integer, Source:string, EntryNumber:string, Line:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MailingLists (2)
+  
+  - GET /api/v1/MailingLists/{OrgCode}
+      
+      - summary: Standard - Search for mailing list using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MailingLists/{OrgCode}/{ID}
+      
+      - summary: Standard - Get a single mailing list entry by its parameters
+          
+      - requiredPath: OrgCode:string, ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ManagementReportCodes (2)
+  
+  - GET /api/v1/ManagementReportCodes/{OrgCode}
+      
+      - summary: Standard - Search for Management Report Codes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ManagementReportCodes/{OrgCode}/{Code}
+      
+      - summary: Standard - Get Management Report Codes by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## MarketListItems (2)
+  
+  - GET /api/v1/MarketListItems/{OrgCode}
+      
+      - summary: Standard - Search for Market List Items using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MarketListItems/{OrgCode}/{MarketList}/{Sequence}
+      
+      - summary: Standard - Get a single Market List Item by its parameters
+          
+      - requiredPath: OrgCode:string, MarketList:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MarketLists (2)
+  
+  - GET /api/v1/MarketLists/{OrgCode}
+      
+      - summary: Standard - Search for Market Lists using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MarketLists/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single Market List by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## MarketSegments (2)
+  
+  - GET /api/v1/MarketSegments/{OrgCode}
+      
+      - summary: Basic - Search for market segment using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MarketSegments/{OrgCode}/{Major}/{Minor}
+      
+      - summary: Basic - Get a single market segment by its parameters
+          
+      - requiredPath: OrgCode:string, Major:string, Minor:string
+          
+      - responseCodes: 200
+          
+  
+  ## MeetingAttendees (2)
+  
+  - GET /api/v1/MeetingAttendees
+      
+      - summary: Standard - Search for Meeting Attendees using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MeetingAttendees/{ID}
+      
+      - summary: Standard - Get a single Meeting Attendee by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MeetingNotes (2)
+  
+  - GET /api/v1/MeetingNotes/{OrgCode}
+      
+      - summary: Standard - Search for meeting note using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MeetingNotes/{OrgCode}/{BulletinApplication}/{Meeting}/{BulletinSeqNbr}/{SequenceNbr}
+      
+      - summary: Standard - Get a single meeting note by its parameters
+          
+      - requiredPath: OrgCode:string, BulletinApplication:string, Meeting:integer, BulletinSeqNbr:integer, SequenceNbr:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MembershipAccountItems (2)
+  
+  - GET /api/v1/MembershipAccountItems
+      
+      - summary: Standard - Search for membership account items using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MembershipAccountItems/{Id}
+      
+      - summary: Standard - Get a single membership account item by its parameters
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MembershipCards (2)
+  
+  - GET /api/v1/MembershipCards
+      
+      - summary: Standard - Search for an Membership Card using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MembershipCards/{CardId}
+      
+      - summary: Standard - Get a single Membership Card by its parameters
+          
+      - requiredPath: CardId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MembershipEngagements (2)
+  
+  - GET /api/v1/MembershipEngagements
+      
+      - summary: Standard - Search for an Membership Engagement using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MembershipEngagements/{EngagementId}
+      
+      - summary: Standard - Get a single Membership Engagement by its parameters
+          
+      - requiredPath: EngagementId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MembershipEngagementTypes (2)
+  
+  - GET /api/v1/MembershipEngagementTypes
+      
+      - summary: Standard - Search for an Membership EngagementType using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MembershipEngagementTypes/{EngagementTypeId}
+      
+      - summary: Standard - Get a single Membership EngagementType by its parameters
+          
+      - requiredPath: EngagementTypeId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MembershipOrderItems (2)
+  
+  - GET /api/v1/MembershipOrderItems/{OrgCode}
+      
+      - summary: Standard - Search for membership order items using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MembershipOrderItems/{OrgCode}/{OrderNumber}/{OrderLineNumber}
+      
+      - summary: Standard - Get a single membership order item by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer, OrderLineNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## MembershipOrders (2)
+  
+  - GET /api/v1/MembershipOrders/{OrgCode}
+      
+      - summary: Standard - Search for membership orders using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/MembershipOrders/{OrgCode}/{OrderNumber}
+      
+      - summary: Standard - Get a single membership order by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Notes (2)
+  
+  - GET /api/v1/Notes/{OrgCode}
+      
+      - summary: Basic - Search for note using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Notes/{OrgCode}/{Type}/{Code}/{SequenceNumber}
+      
+      - summary: Basic - Get a single note by its parameters
+          
+      - requiredPath: OrgCode:string, Type:string, Code:string, SequenceNumber:number
+          
+      - responseCodes: 200
+          
+  
+  ## Opportunities (2)
+  
+  - GET /api/v1/Opportunities/{OrgCode}
+      
+      - summary: Basic - Search for opportunities using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Opportunities/{OrgCode}/{AccountCode}/{Occurrence}
+      
+      - summary: Basic - Get a single opportunity by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string, Occurrence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## OpportunityStatuses (2)
+  
+  - GET /api/v1/OpportunityStatuses/{OrgCode}
+      
+      - summary: Basic - Search for opportunity status using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/OpportunityStatuses/{OrgCode}/{Code}/{Designation}
+      
+      - summary: Basic - Get a single Opportunity Status entry by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string, Designation:string
+          
+      - responseCodes: 200
+          
+  
+  ## OrderAllergies (2)
+  
+  - GET /api/v1/OrderAllergies
+      
+      - summary: Basic - Search for Order Allergies using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/OrderAllergies/{ID}
+      
+      - summary: Basic - Get a single Order Allergy model by its parameters
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## OrderRegistrants (2)
+  
+  - GET /api/v1/OrderRegistrants/{OrgCode}
+      
+      - summary: Standard - Search for order registrant using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/OrderRegistrants/{OrgCode}/{RegistrantSequenceNbr}
+      
+      - summary: Standard - Get a single order registrant by its parameters
+          
+      - requiredPath: OrgCode:string, RegistrantSequenceNbr:integer
+          
+      - responseCodes: 200
+          
+  
+  ## OrderStatuses (2)
+  
+  - GET /api/v1/OrderStatuses/{OrgCode}
+      
+      - summary: Basic - Search for order status using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/OrderStatuses/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single order status by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## OrganizationParameters (2)
+  
+  - GET /api/v1/OrganizationParameters/{OrgCode}
+      
+      - summary: Standard - Search for organization parameters using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/OrganizationParameters/{OrgCode}/{ApplicationCode}/{ParameterCode}
+      
+      - summary: Standard - Get a single organization parameter by its parameters
+          
+      - requiredPath: OrgCode:string, ApplicationCode:string, ParameterCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## Organizations (2)
+  
+  - GET /api/v1/Organizations
+      
+      - summary: Basic - Gets a list of Organizations using OData.
+          
+      - requiredQuery: Search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Organizations/{OrgCode}
+      
+      - summary: Basic - Get a single Organization by its parameters
+          
+      - requiredPath: OrgCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## PaymentPlanDetails (2)
+  
+  - GET /api/v1/PaymentPlanDetails/{OrgCode}
+      
+      - summary: Standard - Search for payment plan details using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PaymentPlanDetails/{OrgCode}/{PayPlanID}/{PayNumber}/{Sequence}
+      
+      - summary: Standard - Get a single payment plan detail by its parameters
+          
+      - requiredPath: OrgCode:string, PayPlanID:integer, PayNumber:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PaymentPlanHeaders (2)
+  
+  - GET /api/v1/PaymentPlanHeaders/{OrgCode}
+      
+      - summary: Standard - Search for payment plan headers using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PaymentPlanHeaders/{OrgCode}/{PayPlanID}/{PaymentNumber}
+      
+      - summary: Standard - Get a single payment plan header by its parameters
+          
+      - requiredPath: OrgCode:string, PayPlanID:integer, PaymentNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PaymentPlanItems (2)
+  
+  - GET /api/v1/PaymentPlanItems
+      
+      - summary: Standard - Search for payment plan items using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PaymentPlanItems/{id}
+      
+      - summary: Standard - Get a single payment plan item by its parameters
+          
+      - requiredPath: id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PaymentPlanItemTaxes (2)
+  
+  - GET /api/v1/PaymentPlanItemTaxes
+      
+      - summary: Standard - Search for payment plan item taxes using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PaymentPlanItemTaxes/{id}
+      
+      - summary: Standard - Get a single payment plan item tax by its parameters
+          
+      - requiredPath: id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PaymentPlans (2)
+  
+  - GET /api/v1/PaymentPlans/{OrgCode}
+      
+      - summary: Standard - Search for payment plan using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PaymentPlans/{OrgCode}/{PaymentPlanID}
+      
+      - summary: Standard - Get a single payment plan by its parameters
+          
+      - requiredPath: OrgCode:string, PaymentPlanID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Payments (2)
+  
+  - GET /api/v1/Payments/{OrgCode}
+      
+      - summary: Standard - Search for payments using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Payments/{OrgCode}/{AccountCode}/{Sequence}
+      
+      - summary: Standard - Get a single Payment entry by its parameters
+          
+      - requiredPath: OrgCode:string, AccountCode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PendingPayments (2)
+  
+  - GET /api/v1/PendingPayments/{OrgCode}
+      
+      - summary: Basic - Search for Pending Payments List using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PendingPayments/{OrgCode}/{PendingPaymentID}
+      
+      - summary: Basic - Get a single Pending Payment by its parameters
+          
+      - requiredPath: OrgCode:string, PendingPaymentID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PhysicalCountInventoryBatchHeaders (2)
+  
+  - GET /api/v1/PhysicalCountInventoryBatchHeader/{OrgCode}
+      
+      - summary: Standard - Search for physical count inventory batch headers using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PhysicalCountInventoryBatchHeader/{OrgCode}/{BatchID}
+      
+      - summary: Standard - Get a physical count inventory batch header by its parameters
+          
+      - requiredPath: OrgCode:string, BatchID:string
+          
+      - responseCodes: 200
+          
+  
+  ## POContracts (2)
+  
+  - GET /api/v1/POContracts/{OrgCode}
+      
+      - summary: Standard - Search for records. Note that this search endpoint does not use OrgCode.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/POContracts/{OrgCode}/{ContractID}
+      
+      - summary: Standard - Retrieve a POContracts record
+          
+      - requiredPath: OrgCode:string, ContractID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PreferenceSettings (2)
+  
+  - GET /api/v1/PreferenceSettings/{OrgCode}
+      
+      - summary: Basic - Search for preference settings using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PreferenceSettings/{OrgCode}/{ID}
+      
+      - summary: Basic - Get a single preference setting by its parameters
+          
+      - requiredPath: OrgCode:string, ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PriceList (2)
+  
+  - GET /api/v1/PriceList/{OrgCode}
+      
+      - summary: Basic - Search for price list using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PriceList/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single price list entry by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## PriceListItems (2)
+  
+  - GET /api/v1/PriceListItems/{OrgCode}
+      
+      - summary: Basic - Search for price list item using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PriceListItems/{OrgCode}/{PriceList}/{Sequence}
+      
+      - summary: Basic - Get a single price list item by its parameters
+          
+      - requiredPath: OrgCode:string, PriceList:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ProductsAndServices (2)
+  
+  - GET /api/v1/ProductsAndServices/{OrgCode}
+      
+      - summary: Basic - Search for products and services using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ProductsAndServices/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single product or a service by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## PublicLanguages (2)
+  
+  - GET /api/v1/PublicLanguages
+      
+      - summary: Standard - Search for public languages using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PublicLanguages/{Sequence}
+      
+      - summary: Standard - Get a single public language by its parameters
+          
+      - requiredPath: Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrderApproval (2)
+  
+  - GET /api/v1/PurchaseOrderApproval/{OrgCode}
+      
+      - summary: Standard - Search for purchase order approval using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrderApproval/{OrgCode}/{Number}/{ItemSequence}/{Sequence}
+      
+      - summary: Standard - Get a single purchase order approval by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer, ItemSequence:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrderApprovalLevels (2)
+  
+  - GET /api/v1/PurchaseOrderApprovalLevels/{OrgCode}
+      
+      - summary: Standard - Search for purchase order approval levels using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrderApprovalLevels/{OrgCode}/{Type}/{ApprovalLevel}
+      
+      - summary: Standard - Get a purchase order approval level by its parameters
+          
+      - requiredPath: OrgCode:string, Type:string, ApprovalLevel:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrderDistributions (2)
+  
+  - GET /api/v1/PurchaseOrderDistribution/{OrgCode}
+      
+      - summary: Standard - Search for purchase order distributions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrderDistribution/{OrgCode}/{Number}/{Sequence}/{Line}
+      
+      - summary: Standard - Get a purchase order distribution by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer, Sequence:integer, Line:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrderItems (2)
+  
+  - GET /api/v1/PurchaseOrderItems/{OrgCode}
+      
+      - summary: Standard - Search for purchase order items using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrderItems/{OrgCode}/{Number}/{ItemSequence}
+      
+      - summary: Standard - Get a single purchase order item by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer, ItemSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrders (2)
+  
+  - GET /api/v1/PurchaseOrders/{OrgCode}
+      
+      - summary: Standard - Search for purchase orders using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrders/{OrgCode}/{Number}
+      
+      - summary: Standard - Get a single purchase order by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrderTaxes (2)
+  
+  - GET /api/v1/PurchaseOrderTaxes/{OrgCode}
+      
+      - summary: Standard - Search for PurchaseOrderTaxes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrderTaxes/{OrgCode}/{Number}/{ItemSequence}/{Sequence}
+      
+      - summary: Standard - Retrieve a PurchaseOrderTax record
+          
+      - requiredPath: OrgCode:string, Number:integer, ItemSequence:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## PurchaseOrderUserApprovals (2)
+  
+  - GET /api/v1/PurchaseOrderUserApprovals/{OrgCode}
+      
+      - summary: Standard - Search for purchase order user approvals using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/PurchaseOrderUserApprovals/{OrgCode}/{Sequence}
+      
+      - summary: Standard - Get a purchase order user approval by its parameters
+          
+      - requiredPath: OrgCode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ReceivableTransactionTypes (2)
+  
+  - GET /api/v1/ReceivableTransactionTypes/{OrgCode}
+      
+      - summary: Standard - Search for ReceivableTransactionTypes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ReceivableTransactionTypes/{OrgCode}/{TSM}
+      
+      - summary: Standard - Retrieve a ReceivableTransactionTypes record
+          
+      - requiredPath: OrgCode:string, TSM:string
+          
+      - responseCodes: 200
+          
+  
+  ## RegistrationAssignments (2)
+  
+  - GET /api/v1/RegistrationAssignments/{OrgCode}
+      
+      - summary: Basic - Gets a list of all Registration Assignments on the provided Organization.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RegistrationAssignments/{OrgCode}/{SequenceNumber}
+      
+      - summary: Basic - Get a single Registration Assignment by sequence number
+          
+      - requiredPath: OrgCode:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RegistrationConfigurations (2)
+  
+  - GET /api/v1/RegistrationConfigurations/{OrgCode}
+      
+      - summary: Standard - Search for registration configuration using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RegistrationConfigurations/{OrgCode}/{ConfigurationCode}
+      
+      - summary: Standard - Get a single registration configuration by its parameters
+          
+      - requiredPath: OrgCode:string, ConfigurationCode:string
+          
+      - responseCodes: 200
+          
+  
+  ## RegistrationOrderItems (2)
+  
+  - GET /api/v1/RegistrationOrderItems/{OrgCode}
+      
+      - summary: Standard - Search for registration order items using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RegistrationOrderItems/{OrgCode}/{OrderNumber}/{OrderLineNumber}
+      
+      - summary: Standard - Get a single registration order item by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer, OrderLineNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RegistrationOrders (2)
+  
+  - GET /api/v1/RegistrationOrders/{OrgCode}
+      
+      - summary: Standard - Search for registration orders using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RegistrationOrders/{OrgCode}/{OrderNumber}
+      
+      - summary: Standard - Get a single registration order by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RegistrationPreferenceTypes (2)
+  
+  - GET /api/v1/RegistrationPreferenceTypes
+      
+      - summary: Standard - Search for registration preference type using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RegistrationPreferenceTypes/{RegistrationPreferenceID}
+      
+      - summary: Standard - Get a single registration preference type by its parameters
+          
+      - requiredPath: RegistrationPreferenceID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Relationships (2)
+  
+  - GET /api/v1/Relationships/{OrgCode}
+      
+      - summary: Basic - Search for account relationships using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Relationships/{OrgCode}/{MasterAccountCode}/{SubordinateAccountCode}/{RelationshipType}
+      
+      - summary: Basic - Get a single relationship entry connecting two accounts by its parameters
+          
+      - requiredPath: OrgCode:string, MasterAccountCode:string, SubordinateAccountCode:string, RelationshipType:string
+          
+      - responseCodes: 200
+          
+  
+  ## RelationshipTypes (2)
+  
+  - GET /api/v1/RelationshipTypes/{OrgCode}
+      
+      - summary: Basic - Search for relationship type using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RelationshipTypes/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single relationship type by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## Reports (1)
+  
+  - GET /api/v1/Reports/{OrgCode}/{ReportSequence}/GetParameters
+      
+      - summary: Standard - This returns a paramaters model with parameters needed to run the report
+          
+      - requiredPath: OrgCode:string, ReportSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RequisitionApproval (2)
+  
+  - GET /api/v1/RequisitionApproval/{OrgCode}
+      
+      - summary: Standard - Search for requisition approval using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RequisitionApproval/{OrgCode}/{Number}/{Line}/{Sequence}
+      
+      - summary: Standard - Get a single requisition approval by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer, Line:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RequisitionItems (2)
+  
+  - GET /api/v1/RequisitionItems/{OrgCode}
+      
+      - summary: Standard - Search for requisition item using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RequisitionItems/{OrgCode}/{Number}/{Sequence}
+      
+      - summary: Standard - Get a single requisition item by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Requisitions (2)
+  
+  - GET /api/v1/Requisitions/{OrgCode}
+      
+      - summary: Standard - Search for requisitions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Requisitions/{OrgCode}/{Number}
+      
+      - summary: Standard - Get a single requisition by its parameters
+          
+      - requiredPath: OrgCode:string, Number:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RequisitionTaxes (2)
+  
+  - GET /api/v1/RequisitionTaxes/{OrgCode}
+      
+      - summary: Basic - Search for RequisitionTaxes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RequisitionTaxes/{OrgCode}/{Number}/{Line}/{Sequence}
+      
+      - summary: Basic - Retrieve a RequisitionTax record
+          
+      - requiredPath: OrgCode:string, Number:integer, Line:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Resources (2)
+  
+  - GET /api/v1/Resources/{OrgCode}
+      
+      - summary: Basic - Search for resource using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Resources/{OrgCode}/{Sequence}
+      
+      - summary: Basic - Get a single resource by its parameters
+          
+      - requiredPath: OrgCode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ResourceTaxRates (2)
+  
+  - GET /api/v1/ResourceTaxRates/{OrgCode}
+      
+      - summary: Basic - Search for ResourceTaxRates using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ResourceTaxRates/{OrgCode}/{Sequence}
+      
+      - summary: Basic - Retrieve a ResourceMasterTaxRate record
+          
+      - requiredPath: OrgCode:string, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Roles (2)
+  
+  - GET /api/v1/Roles
+      
+      - summary: Basic - Search for Roles using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Roles/{ID}
+      
+      - summary: Basic - Get a single Role by its parameters
+          
+      - requiredPath: ID:string
+          
+      - responseCodes: 200
+          
+  
+  ## RoomFlowInventories (2)
+  
+  - GET /api/v1/RoomFlowInventories/{orgCode}
+      
+      - summary: Standard - Search for room flow inventory using OData.
+          
+      - requiredPath: orgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RoomFlowInventories/{OrgCode}/{flowSequenceNumber}
+      
+      - summary: Standard - Get a single room flow inventory by its parameters.
+          
+      - requiredPath: OrgCode:string, flowSequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## RoomTypes (2)
+  
+  - GET /api/v1/RoomTypes/{orgCode}
+      
+      - summary: Standard - Search for a room type using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: orgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/RoomTypes/{orgCode}/{code}
+      
+      - summary: Standard - Get a single room type by its organization code and room type code.
+          
+      - requiredPath: orgCode:string, code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ServiceOrderItems (2)
+  
+  - GET /api/v1/ServiceOrderItems/{OrgCode}
+      
+      - summary: Standard - Search for Service order items using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ServiceOrderItems/{OrgCode}/{OrderNumber}/{OrderLineNumber}
+      
+      - summary: Standard - Get a single service order item by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer, OrderLineNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ServiceOrders (2)
+  
+  - GET /api/v1/ServiceOrders/{OrgCode}
+      
+      - summary: Standard - Search for Service orders using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ServiceOrders/{OrgCode}/{OrderNumber}
+      
+      - summary: Standard - Get a single Service order by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SessionProposalEvaluationCriteriaResponses (2)
+  
+  - GET /api/v1/SessionProposalEvaluationCriteriaResponses
+      
+      - summary: Standard - Search for session proposal evaluation responses using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SessionProposalEvaluationCriteriaResponses/{AbstractEvaluationResponseId}
+      
+      - summary: Standard - Get a single session proposal evaluation response by its parameters
+          
+      - requiredPath: AbstractEvaluationResponseId:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SessionProposalEvaluations (2)
+  
+  - GET /api/v1/SessionProposalEvaluations
+      
+      - summary: Standard - Search for session proposal evaluations using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SessionProposalEvaluations/{SessionProposalEvaluationID}
+      
+      - summary: Standard - Get a single session proposal evaluation by its parameters
+          
+      - requiredPath: SessionProposalEvaluationID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SessionProposalEventRoundEvaluators (2)
+  
+  - GET /api/v1/SessionProposalEventRoundEvaluators
+      
+      - summary: Standard - Search for session proposal evaluator rounds using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SessionProposalEventRoundEvaluators/{Id}
+      
+      - summary: Standard - Get a single session proposal evaluation by its parameters
+          
+      - requiredPath: Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SessionProposals (2)
+  
+  - GET /api/v1/SessionProposals/{OrgCode}
+      
+      - summary: Standard - Search for session proposal using OData. Note, this will not return user fields. Use the single GET endpoint to retrieve user fields.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SessionProposals/{OrgCode}/{Id}
+      
+      - summary: Standard - Get a single session proposal by its parameters
+          
+      - requiredPath: OrgCode:string, Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Setups (2)
+  
+  - GET /api/v1/Setups/{OrgCode}
+      
+      - summary: Basic - Search for setups using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Setups/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single setup by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceClasses (2)
+  
+  - GET /api/v1/SpaceClasses
+      
+      - summary: Standard - Search for a Space Class using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceClasses/{ID}
+      
+      - summary: Standard - Get a single Space Class by ID.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceComponents (2)
+  
+  - GET /api/v1/SpaceComponents/{OrgCode}
+      
+      - summary: Basic - Search for space components using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceComponents/{OrgCode}/{Space}/{Component}
+      
+      - summary: Basic - Get a single space component by its parameters
+          
+      - requiredPath: OrgCode:string, Space:string, Component:string
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceExternalIds (2)
+  
+  - GET /api/v1/SpaceExternalIds
+      
+      - summary: Standard - Search for Space External Ids using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceExternalIds/{ID}
+      
+      - summary: Standard - Get a Space External Id by the primary key.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceFeatures (2)
+  
+  - GET /api/v1/SpaceFeatures/{OrgCode}
+      
+      - summary: Basic - Search for space features using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceFeatures/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single space feature by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceHierarchyLevelOnes (2)
+  
+  - GET /api/v1/SpaceHierarchyLevelOnes/{OrgCode}
+      
+      - summary: Basic - Search for a level 1 space hierarchy using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceHierarchyLevelOnes/{OrgCode}/{LevelOneSequence}
+      
+      - summary: Basic - Get a single level 1 space hierarchy by its parameters
+          
+      - requiredPath: OrgCode:string, LevelOneSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceHierarchyLevelTwos (2)
+  
+  - GET /api/v1/SpaceHierarchyLevelTwos/{OrgCode}
+      
+      - summary: Basic - Search for a level 2 space hierarchy using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceHierarchyLevelTwos/{OrgCode}/{LevelOneSequence}/{LevelTwoSequence}
+      
+      - summary: Basic - Get a single level 2 space hierarchy by its parameters
+          
+      - requiredPath: OrgCode:string, LevelOneSequence:integer, LevelTwoSequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceImages (2)
+  
+  - GET /api/v1/SpaceImages/{OrgCode}
+      
+      - summary: Basic - Search for space images using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceImages/{OrgCode}/{Id}
+      
+      - summary: Basic - Get a single space image by its parameters
+          
+      - requiredPath: OrgCode:string, Id:integer
+          
+      - responseCodes: 200
+          
+  
+  ## Spaces (2)
+  
+  - GET /api/v1/Spaces/{OrgCode}
+      
+      - summary: Basic - Search for space using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Spaces/{OrgCode}/{Code}
+      
+      - summary: Basic - Get a single space by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceSetups (2)
+  
+  - GET /api/v1/SpaceSetups/{OrgCode}
+      
+      - summary: Basic - Search for space setups using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceSetups/{OrgCode}/{Space}/{Code}
+      
+      - summary: Basic - Get a single space setup by its parameters
+          
+      - requiredPath: OrgCode:string, Space:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## SpaceTypes (2)
+  
+  - GET /api/v1/SpaceTypes
+      
+      - summary: Standard - Search for sapce types using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/SpaceTypes/{Code}
+      
+      - summary: Standard - Get a single space type entry by its parameters
+          
+      - requiredPath: Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## StatementBatches (2)
+  
+  - GET /api/v1/StatementBatches/{OrgCode}
+      
+      - summary: Standard - Search for StatementBatches using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/StatementBatches/{OrgCode}/{Batch}
+      
+      - summary: Standard - Get Statement Batch by its parameters
+          
+      - requiredPath: OrgCode:string, Batch:integer
+          
+      - responseCodes: 200
+          
+  
+  ## StatementDetails (2)
+  
+  - GET /api/v1/StatementDetails/{OrgCode}
+      
+      - summary: Standard - Search for StatementDetails using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/StatementDetails/{OrgCode}/{BatchSequence}/{HeaderSequence}/{SequenceNumber}
+      
+      - summary: Standard - Get Statement Detail by its parameters
+          
+      - requiredPath: OrgCode:string, BatchSequence:integer, HeaderSequence:integer, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## StatementHeaders (2)
+  
+  - GET /api/v1/StatementHeaders/{OrgCode}
+      
+      - summary: Standard - Search for Statement Headers using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/StatementHeaders/{OrgCode}/{BatchSequence}/{Sequence}
+      
+      - summary: Standard - Get Statement Header by its parameters
+          
+      - requiredPath: OrgCode:string, BatchSequence:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~States~~ (2)
+  
+  - GET /api/v1/States
+      
+      - summary: Basic - Search for states using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/States/{CountryCode}/{Code}
+      
+      - summary: Basic - Get a single state by its parameters.
+          
+      - requiredPath: CountryCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## Tasks (2)
+  
+  - GET /api/v1/Tasks
+      
+      - summary: Standard - Search for Tasks using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Tasks/{ID}
+      
+      - summary: Standard - Get a single EventTask by its parameters.
+          
+      - requiredPath: ID:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~TransactionMethods~~ (2)
+  
+  - GET /api/v1/TransactionMethods/{OrgCode}
+      
+      - summary: Standard - Search for transaction methods using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/TransactionMethods/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single transaction method by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Usages~~ (2)
+  
+  - GET /api/v1/Usages/{OrgCode}
+      
+      - summary: Standard - Search for usages using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Usages/{OrgCode}/{Code}
+      
+      - summary: Standard - Get a single usage by its parameters
+          
+      - requiredPath: OrgCode:string, Code:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~UserDefinedFields~~ (2)
+  
+  - GET /api/v1/UserDefinedFields/{OrgCode}
+      
+      - summary: Basic - Search for user defined field metadata using OData. Note, this is referring to the metadata of the User Field itself, not the user field values stored on the various Ungerboeck areas.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/UserDefinedFields/{OrgCode}/{IssueOpportunityClass}/{IssueOpportunityType}/{SequenceNumber}
+      
+      - summary: Basic - Get a single user defined field entry by its parameters. Note, this is referring to the metadata of the User Field itself, not the user field values stored on the various Ungerboeck areas.
+          
+      - requiredPath: OrgCode:string, IssueOpportunityClass:string, IssueOpportunityType:string, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~UserRoles~~ (2)
+  
+  - GET /api/v1/UserRoles
+      
+      - summary: Basic - Search for UserRoles using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/UserRoles/{User}/{Role}
+      
+      - summary: Basic - Get a single UserRole entry by its parameters
+          
+      - requiredPath: User:string, Role:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Users~~ (2)
+  
+  - GET /api/v1/Users
+      
+      - summary: Basic - Search for users using OData. Note that this search endpoint does not use OrgCode.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Users/{ID}
+      
+      - summary: Basic - Get a single user by its parameters
+          
+      - requiredPath: ID:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~ValidationEntries~~ (2)
+  
+  - GET /api/v1/ValidationEntries/{OrgCode}
+      
+      - summary: Basic - Search for validation entries using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/ValidationEntries/{OrgCode}/{ValidationTableID}/{SequenceNumber}
+      
+      - summary: Basic - Get a single validation entry by its parameters
+          
+      - requiredPath: OrgCode:string, ValidationTableID:integer, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~VoucherApprovals~~ (2)
+  
+  - GET /api/v1/VoucherApprovals/{OrgCode}
+      
+      - summary: Standard - Search for voucher approvals using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/VoucherApprovals/{OrgCode}/{VoucherNumber}/{VoucherDistrSeq}/{Sequence}
+      
+      - summary: Standard - Get a voucher approval by its parameters
+          
+      - requiredPath: OrgCode:string, VoucherNumber:integer, VoucherDistrSeq:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~VoucherBatches~~ (2)
+  
+  - GET /api/v1/VoucherBatches/{OrgCode}
+      
+      - summary: Standard - Search for voucher batches using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/VoucherBatches/{OrgCode}/{Batch}
+      
+      - summary: Standard - Get a voucher batch by its parameters
+          
+      - requiredPath: OrgCode:string, Batch:string
+          
+      - responseCodes: 200
+          
+  
+  ## ~~VoucherDistribution~~ (2)
+  
+  - GET /api/v1/VoucherDistribution/{OrgCode}
+      
+      - summary: Standard - Search for voucher distributions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/VoucherDistribution/{OrgCode}/{Voucher}/{Sequence}
+      
+      - summary: Standard - Get a voucher distribution by its parameters
+          
+      - requiredPath: OrgCode:string, Voucher:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~VoucherPaymentInstructions~~ (2)
+  
+  - GET /api/v1/VoucherPaymentInstructions/{OrgCode}
+      
+      - summary: Standard - Search for voucher payment instructions using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/VoucherPaymentInstructions/{OrgCode}/{Voucher}/{SequenceNumber}
+      
+      - summary: Standard - Get a voucher payment instruction by its parameters
+          
+      - requiredPath: OrgCode:string, Voucher:integer, SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~VoucherPurchaseOrderDetails~~ (2)
+  
+  - GET /api/v1/VoucherPurchaseOrderDetails/{OrgCode}
+      
+      - summary: Standard - Search for voucher purchase order details using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/VoucherPurchaseOrderDetails/{OrgCode}/{Voucher}/{PONumber}/{Sequence}
+      
+      - summary: Standard - Get a voucher purchase order detail by its parameters
+          
+      - requiredPath: OrgCode:string, Voucher:integer, PONumber:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Vouchers~~ (2)
+  
+  - GET /api/v1/Vouchers/{OrgCode}
+      
+      - summary: Standard - Search for Vouchers using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Vouchers/{OrgCode}/{Voucher}
+      
+      - summary: Standard - Get Voucher by its parameters
+          
+      - requiredPath: OrgCode:string, Voucher:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~VoucherTaxes~~ (2)
+  
+  - GET /api/v1/VoucherTaxes/{OrgCode}
+      
+      - summary: Standard - Search for voucher taxes using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/VoucherTaxes/{OrgCode}/{Voucher}/{Sequence}
+      
+      - summary: Standard - Get a voucher tax by its parameters
+          
+      - requiredPath: OrgCode:string, Voucher:integer, Sequence:integer
+          
+      - responseCodes: 200
+          
+  
+  ## ~~Webhooks~~ (4)
+  
+  - GET /api/v1/Webhooks
+      
+      - summary: Standard - Search for webhooks using OData.
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Webhooks/{OrgCode}
+      
+      - summary: Standard - Search for webhooks using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Webhooks/{OrgCode}/{SequenceNumber}
+      
+      - summary: Standard - Get a single webhook by its parameters
+          
+      - requiredPath: SequenceNumber:integer, OrgCode:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/Webhooks/{SequenceNumber}
+      
+      - summary: Standard - Get a single webhook by its parameters
+          
+      - requiredPath: SequenceNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## WorkOrderItems (2)
+  
+  - GET /api/v1/WorkOrderItems/{OrgCode}
+      
+      - summary: Basic - Search for work order items using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/WorkOrderItems/{OrgCode}/{OrderNumber}/{OrderLineNumber}
+      
+      - summary: Basic - Get a single work order item by its parameters
+          
+      - requiredPath: OrgCode:string, OrderNumber:integer, OrderLineNumber:integer
+          
+      - responseCodes: 200
+          
+  
+  ## WorkOrders (2)
+  
+  - GET /api/v1/WorkOrders/{OrgCode}
+      
+      - summary: Basic - Search for work order using OData.
+          
+      - requiredPath: OrgCode:string
+          
+      - requiredQuery: search:string
+          
+      - responseCodes: 200
+          
+  - GET /api/v1/WorkOrders/{OrgCode}/{Order}/{Department}
+      
+      - summary: Basic - Get a single work order by its parameters
+          
+      - requiredPath: OrgCode:string, Order:integer, Department:string
+          
+      - responseCodes: 200
+}

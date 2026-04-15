@@ -1,0 +1,20 @@
+meta {
+  name: GET ???
+  type: http
+  seq: 9
+}
+
+get {
+  url: https://{{domain}}/api/v1/EventsPriceList/10?search=1 eq 1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: 1 eq 1
+  ~search: EnteredOn gt DateTime'2026-03-01'
+}
+
+settings {
+  encodeUrl: true
+}

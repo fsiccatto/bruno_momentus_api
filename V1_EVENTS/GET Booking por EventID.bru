@@ -1,0 +1,19 @@
+meta {
+  name: GET Booking por EventID
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://{{domain}}/api/v1/Bookings/10/{{EventID}}/1?search=EnteredOn gt DateTime'2026-03-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredOn gt DateTime'2026-03-01'
+}
+
+settings {
+  encodeUrl: true
+}
