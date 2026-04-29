@@ -53,7 +53,7 @@ script:pre-request {
   
   console.log("JWT generado:", jwt);
   
-  bru.setVar("ungerboeck_jwt", jwt);
+  bru.setEnvVar("ungerboeck_jwt", jwt);
 }
 
 docs {
