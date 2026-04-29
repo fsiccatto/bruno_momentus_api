@@ -1,17 +1,17 @@
 meta {
-  name: GET Activities
+  name: GET WorkOrderItems
   type: http
   seq: 12
 }
 
 get {
-  url: https://{{domain}}/api/v1/Activities/10?search=1 eq 1
+  url: https://{{domain}}/api/v1/WorkOrderItems/10?search=OrderNumber eq 15
   body: none
   auth: inherit
 }
 
 params:query {
-  search: 1 eq 1
+  search: OrderNumber eq 15
 }
 
 settings {

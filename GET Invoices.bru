@@ -1,0 +1,20 @@
+meta {
+  name: GET Invoices
+  type: http
+  seq: 16
+}
+
+get {
+  url: https://{{domain}}/api/v1/Invoices/10?search=EnteredOn gt DateTime'2024-03-01'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredOn gt DateTime'2024-03-01'
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,11 +1,11 @@
 meta {
-  name: GET Bookings
+  name: GET Payments
   type: http
-  seq: 5
+  seq: 13
 }
 
 get {
-  url: https://{{domain}}/api/v1/Bookings/10?search=EnteredOn gt DateTime'2026-03-01'
+  url: https://{{domain}}/api/v1/Payments/10?search=EnteredOn gt DateTime'2026-03-01'
   body: none
   auth: inherit
 }

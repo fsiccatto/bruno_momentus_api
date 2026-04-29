@@ -1,0 +1,21 @@
+meta {
+  name: GET ServiceOrderItems
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://{{domain}}/api/v1/ServiceOrderItems/10?search=EnteredBy eq 'VELI'
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: EnteredBy eq 'VELI'
+  ~search: EnteredOn gt DateTime'2026-02-01'
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
