@@ -11,52 +11,49 @@ auth:bearer {
 }
 
 script:pre-request {
-  const crypto = require('crypto');
+  const CryptoJS = require("crypto-js");
   
-  function generateJWT() {
-      const apiUserId = bru.getEnvVar("ApiUserID");
-      const apiUserKey = bru.getEnvVar("ApiUserKey");
-      const apiUserSecret = bru.getEnvVar("ApiUserSecret");
+  const apiUserId = bru.getEnvVar("ApiUserID");
+  const apiUserKey = bru.getEnvVar("ApiUserKey");
+  const apiUserSecret = bru.getEnvVar("ApiUserSecret");
   
-      const header = { alg: "HS256", typ: "JWT" };
-      const now = Math.floor(Date.now() / 1000);
-      
-      const payload = {
-          iss: apiUserId,
-          key: apiUserKey,
-          exp: now + 60, // IMPORTANTE: Dejamos esto como número, sin .toString()
-          iat: now       // IMPORTANTE: Dejamos esto como número, sin .toString()
-      };
+  console.log("ApiUserID:", apiUserId);
+  console.log("ApiUserKey:", apiUserKey);
+  console.log("ApiUserSecret:", apiUserSecret ? "***exists***" : "MISSING");
   
-      // Función auxiliar para codificar en Base64URL usando Buffer
-      const base64url = (obj) => {
-          return Buffer.from(JSON.stringify(obj))
-              .toString('base64')
-              .replace(/\+/g, '-')
-              .replace(/\//g, '_')
-              .replace(/=+$/, '');
-      };
+  const header = { alg: "HS256", typ: "JWT" };
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: apiUserId,
+    key: apiUserKey,
+    exp: now + 300,
+    iat: now
+  };
   
-      const encodedHeader = base64url(header);
-      const encodedPayload = base64url(payload);
-      const tokenData = `${encodedHeader}.${encodedPayload}`;
-  
-      // Generar la firma usando el módulo nativo 'crypto' de Node.js
-      const hmac = crypto.createHmac('sha256', apiUserSecret);
-      const signature = hmac.update(tokenData).digest('base64')
-          .replace(/\+/g, '-')
-          .replace(/\//g, '_')
-          .replace(/=+$/, '');
-  
-      const jwt = `${tokenData}.${signature}`;
-      
-      // Guardar la variable de entorno
-      bru.setEnvVar("ungerboeck_jwt", jwt);
-      console.log("JWT Generado:", jwt);
+  function base64url(obj) {
+    return CryptoJS.enc.Base64.stringify(
+      CryptoJS.enc.Utf8.parse(JSON.stringify(obj))
+    )
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
   }
   
-  // Ejecutar la función
-  generateJWT();
+  const encodedHeader = base64url(header);
+  const encodedPayload = base64url(payload);
+  const tokenData = `${encodedHeader}.${encodedPayload}`;
+  
+  const signature = CryptoJS.HmacSHA256(tokenData, apiUserSecret);
+  const encodedSignature = CryptoJS.enc.Base64.stringify(signature)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  
+  const jwt = `${tokenData}.${encodedSignature}`;
+  
+  console.log("JWT generado:", jwt);
+  
+  bru.setVar("ungerboeck_jwt", jwt);
 }
 
 docs {
