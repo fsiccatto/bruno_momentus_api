@@ -26,7 +26,7 @@ script:pre-request {
   const payload = {
     iss: apiUserId,
     key: apiUserKey,
-    exp: now + 300,
+    exp: now + 3000,
     iat: now
   };
   
@@ -53,7 +53,7 @@ script:pre-request {
   
   console.log("JWT generado:", jwt);
   
-  bru.setEnvVar("ungerboeck_jwt", jwt);
+  bru.setVar("ungerboeck_jwt", jwt);
 }
 
 docs {

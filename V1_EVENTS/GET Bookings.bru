@@ -5,15 +5,18 @@ meta {
 }
 
 get {
-  url: https://{{domain}}/api/v1/Bookings/10?search=EnteredOn gt DateTime'2026-03-01'
+  url: https://{{domain}}/api/v1/Bookings/10?$select=Event,SequenceNumber&$orderby=Event asc&search=EnteredOn gt DateTime'2026-03-01'
   body: none
   auth: inherit
 }
 
 params:query {
+  $select: Event,SequenceNumber
+  $orderby: Event asc
   search: EnteredOn gt DateTime'2026-03-01'
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
